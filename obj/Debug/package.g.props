@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <PackageJsonName Condition="$(PackageJsonName) == ''">talentsync</PackageJsonName>
+    <PackageJsonVersion Condition="$(PackageJsonVersion) == ''">1.0.0</PackageJsonVersion>
+    <PackageJsonDescription Condition="$(PackageJsonDescription) == ''">TalentSync backend API</PackageJsonDescription>
+    <PackageJsonMain Condition="$(PackageJsonMain) == ''">dist/app.js</PackageJsonMain>
+    <PackageJsonType Condition="$(PackageJsonType) == ''">module</PackageJsonType>
+    <PackageJsonScriptsDev Condition="$(PackageJsonScriptsDev) == ''">tsx watch src/app.ts</PackageJsonScriptsDev>
+    <PackageJsonScriptsBuild Condition="$(PackageJsonScriptsBuild) == ''">tsc</PackageJsonScriptsBuild>
+    <PackageJsonScriptsStart Condition="$(PackageJsonScriptsStart) == ''">node dist/app.js</PackageJsonScriptsStart>
+    <PackageJsonScriptsTest Condition="$(PackageJsonScriptsTest) == ''">vitest</PackageJsonScriptsTest>
+    <PackageJsonKeywords Condition="$(PackageJsonKeywords) == ''">[]</PackageJsonKeywords>
+    <PackageJsonAuthor Condition="$(PackageJsonAuthor) == ''"></PackageJsonAuthor>
+    <PackageJsonLicense Condition="$(PackageJsonLicense) == ''">ISC</PackageJsonLicense>
+    <PackageJsonDependenciesExpress Condition="$(PackageJsonDependenciesExpress) == ''">^4.19.2</PackageJsonDependenciesExpress>
+    <PackageJsonDevdependenciesTypesExpress Condition="$(PackageJsonDevdependenciesTypesExpress) == ''">^4.17.21</PackageJsonDevdependenciesTypesExpress>
+    <PackageJsonDevdependenciesTypesNode Condition="$(PackageJsonDevdependenciesTypesNode) == ''">^25.3.0</PackageJsonDevdependenciesTypesNode>
+    <PackageJsonDevdependenciesEslint Condition="$(PackageJsonDevdependenciesEslint) == ''">^10.0.0</PackageJsonDevdependenciesEslint>
+    <PackageJsonDevdependenciesTsNodeDev Condition="$(PackageJsonDevdependenciesTsNodeDev) == ''">^2.0.0</PackageJsonDevdependenciesTsNodeDev>
+    <PackageJsonDevdependenciesTsx Condition="$(PackageJsonDevdependenciesTsx) == ''">^4.21.0</PackageJsonDevdependenciesTsx>
+    <PackageJsonDevdependenciesTypescript Condition="$(PackageJsonDevdependenciesTypescript) == ''">^5.9.3</PackageJsonDevdependenciesTypescript>
+    <PackageJsonDevdependenciesVitest Condition="$(PackageJsonDevdependenciesVitest) == ''">^4.0.18</PackageJsonDevdependenciesVitest>
+  </PropertyGroup>
+</Project>
