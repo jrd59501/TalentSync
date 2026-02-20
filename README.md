@@ -1,7 +1,8 @@
-# TalentSync
+TalentSync
+
 TalentSync is a TypeScript-based backend service designed to match users to job opportunities based on selected skills. The system uses object-oriented domain modeling and a scoring engine to rank job matches.
-**
-Project Goals**
+
+Project Goals
 
 Build a modular backend using TypeScript and Node
 
@@ -13,7 +14,7 @@ Maintain clean separation of concerns
 
 Prepare architecture for future AI-based skill parsing
 
-**Current Features (v1)**
+Current Features (v1)
 
 Express backend API
 
@@ -28,9 +29,10 @@ Job ranking logic
 Unit testing with Vitest
 
 Modular and extensible architecture
+
 Architecture Overview
 
-**TalentSync follows a layered architecture: **
+TalentSync follows a layered architecture:
 
 Domain Layer
 
