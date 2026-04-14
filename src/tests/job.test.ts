@@ -3,38 +3,53 @@ import { Job } from "../domain/Job.js";
 import { Skill } from "../domain/Skill.js";
 import { SkillProfile } from "../domain/SkillProfile.js";
 
-describe("Job Matching", () => { // Test suite for job matching functionality
+describe("Job Matching", () => {
 
-    it("should calculate correct match percentage", () => { // Test case to verify that the match percentage is calculated correctly
+    it("should calculate score as the number of matched skills", () => {
 
-        const job = new Job(1, "Backend Dev", [ // Create a new job with an ID, title, and required skills
+        const job = new Job(1, "Backend Dev", [
             new Skill("Node"),
             new Skill("TypeScript"),
             new Skill("SQL")
         ]);
 
-        const profile = new SkillProfile([ // Create a skill profile with a set of skills
+        const profile = new SkillProfile([
             new Skill("Node"),
             new Skill("TypeScript")
         ]);
 
-        const result = job.calculateMatch(profile); // Calculate the match score for the given job and skill profile
+        const result = job.calculateMatch(profile);
 
-        expect(result.score).toBeCloseTo(66.66, 1); // Assert that the calculated match percentage is approximately 66.66% (2 out of 3 skills match)
+        // 2 required skills match.
+        expect(result.score).toBe(2);
     });
 
-    it("should return 0 if no skills match", () => { // Test case to verify that the match percentage is 0% when there are no matching skills
-        const job = new Job(1, "Backend Dev", [ // Create a new job with an ID, title, and required skills
+    it("should return 0 if no skills match", () => {
+        const job = new Job(1, "Backend Dev", [
             new Skill("Node")
         ]);
 
-        const profile = new SkillProfile([ // Create a skill profile with a set of skills that do not match the job's required skills
+        const profile = new SkillProfile([
             new Skill("Python")
         ]);
 
-        const result = job.calculateMatch(profile);// Calculate the match score for the given job and skill profile
+        const result = job.calculateMatch(profile);
 
-        expect(result.score).toBe(0); // Assert that the calculated match percentage is 0% (no skills match)
+        // No required skills match, so score should be 0.
+        expect(result.score).toBe(0);
+    });
+
+    it("should return 0 when job has no required skills", () => {
+        const job = new Job(2, "Generalist", []);
+        const profile = new SkillProfile([
+            new Skill("Node"),
+            new Skill("TypeScript")
+        ]);
+
+        const result = job.calculateMatch(profile);
+
+        // Current behavior: if no required skills exist, score is 0.
+        expect(result.score).toBe(0);
     });
 
 });

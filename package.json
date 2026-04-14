@@ -7,8 +7,19 @@
   "scripts": {
     "dev": "tsx watch src/app.ts",
     "build": "tsc",
-    "start": "node dist/app.js",
-    "test": "vitest"
+    "start": "node --env-file=.env dist/app.js",
+    "start:prod": "node dist/app.js",
+    "test": "vitest",
+    "ui:install": "npm --prefix ui install",
+    "ui:ci": "npm --prefix ui ci",
+    "ui:dev": "npm --prefix ui run dev",
+    "ui:build": "npm --prefix ui run build",
+    "build:full": "npm run build && npm run ui:build",
+    "setup:linux": "npm ci && npm run ui:ci",
+    "cli:match": "node --env-file=.env dist/cli/matchCli.js",
+    "cli:match:build": "npm run build && node --env-file=.env dist/cli/matchCli.js",
+    "cli:employer": "npm run build && node --env-file=.env dist/cli/employerCli.js",
+    "demo": "npm run build && node --env-file=.env dist/cli/demoWizard.js"
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,14 @@
+node_modules
+ui/node_modules
+dist
+ui/dist
+.git
+.gitignore
+.vscode
+.vs
+obj
+data/*.db
+data/*.db-shm
+data/*.db-wal
+.env
+npm-debug.log*
