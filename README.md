@@ -1,61 +1,61 @@
-TalentSync
+# TalentSync
 
-TalentSync is a TypeScript-based backend service designed to match users to job opportunities based on selected skills. The system uses object-oriented domain modeling and a scoring engine to rank job matches.
+TalentSync is a full-stack hiring workflow app. Employers can import and manage job listings, candidates can build profiles from resume text and strengths, and the system ranks job matches with deterministic scoring plus optional AI-assisted extraction and reranking.
 
-Project Goals
+## Stack
 
-Build a modular backend using TypeScript and Node
+- Backend: Node.js, Express, TypeScript
+- Frontend: React, Vite
+- Database: SQLite
+- Testing: Vitest
 
-Implement domain-driven design principles
+## Features
 
-Create a scoring engine for job matching
+- Job import from pasted descriptions
+- Job search and category filtering
+- Candidate profile creation and resume-based import
+- Candidate-to-job matching and reranking
+- Demo recruiter and candidate flows
+- API routes, CLI tools, and tests
 
-Maintain clean separation of concerns
+## Run Locally
 
-Prepare architecture for future AI-based skill parsing
+From the project root:
 
-Current Features (v1)
+```bash
+npm install
+npm run ui:install
+npm run build
+npm run ui:dev
+```
 
-Express backend API
+In a second terminal:
 
-Structured domain layer (OOP design)
+```bash
+npm start
+```
 
-Binary skill matching
+- UI: `http://localhost:5173`
+- API: `http://localhost:3000`
 
-Match percentage calculation
+For Linux or WSL, use:
 
-Job ranking logic
+```bash
+npm run setup:linux
+```
 
-Unit testing with Vitest
+## Environment
 
-Modular and extensible architecture
+Optional AI features use environment variables. Copy the example file and add your own key locally:
 
-Architecture Overview
+```bash
+cp .env.example .env
+```
 
-TalentSync follows a layered architecture:
+`OPENAI_API_KEY` is never required for the core app to run and should never be committed.
 
-Domain Layer
+## Project Notes
 
-Contains core business logic.
-
-Job
-
-Skill
-
-SkillProfile
-
-MatchScore
-
-This layer is independent of Express and HTTP.
-
-Services Layer
-
-Coordinates domain objects and ranking logic.
-
-Controllers Layer
-
-Handles incoming API requests.
-
-Routes Layer
-
-Defines API endpoints.
+- This public version excludes local editor files, generated artifacts, and local database files.
+- The app can run without AI using deterministic fallback logic.
+- Seed/demo data is intended for local testing and class presentation.
