@@ -32,6 +32,43 @@ const promptDeleteJob = async (rl: ReturnType<typeof createInterface>) => {
     console.log(`Deleted job #${id}.`);
 };
 
+const showMenu = () => {
+    console.log("\nChoose an action:");
+    console.log("1) List jobs");
+    console.log("2) Import pasted job text");
+    console.log("3) Delete a job by id");
+    console.log("4) Exit");
+};
+
+const shouldDeleteFromList = async (rl: ReturnType<typeof createInterface>) => {
+    const shouldDelete = (await rl.question("\nDelete one of these now? (y/N): ")).trim().toLowerCase();
+    return shouldDelete === "y" || shouldDelete === "yes";
+};
+
+const importPastedJob = async (rl: ReturnType<typeof createInterface>) => {
+    console.log("\nPaste job text now.");
+    console.log("Press Enter on an empty line to submit, then confirm y/n.");
+    console.log("Type CANCEL to restart paste, or EXIT to return to menu.");
+    const pasteResult = await readMultilineWithConfirm(rl);
+    if (pasteResult.exited) {
+        console.log("Paste exited. Returning to menu.");
+        return;
+    }
+    if (pasteResult.cancelled) {
+        console.log("Paste canceled. Returning to menu.");
+        return;
+    }
+
+    const rawText = pasteResult.text;
+    if (rawText.length < 20) {
+        console.log("Job text must be at least 20 characters.");
+        return;
+    }
+
+    const result = await importJobFromText(rawText, "employer-cli");
+    console.log(`Imported #${result.job.id}: ${result.job.title} (${result.extractionMode})`);
+};
+
 const run = async () => {
     // Ensure DB exists and seed jobs loaded.
     jobsRepository.ensureInitialized();
@@ -43,19 +80,14 @@ const run = async () => {
     try {
         while (true) {
             // Simple menu loop for employer actions.
-            console.log("\nChoose an action:");
-            console.log("1) List jobs");
-            console.log("2) Import pasted job text");
-            console.log("3) Delete a job by id");
-            console.log("4) Exit");
+            showMenu();
             const choice = (await rl.question("> ")).trim();
 
             if (choice === "1") {
                 // List recent jobs.
                 printJobs();
                 // Optional quick-delete flow from list screen.
-                const shouldDelete = (await rl.question("\nDelete one of these now? (y/N): ")).trim().toLowerCase();
-                if (shouldDelete === "y" || shouldDelete === "yes") {
+                if (await shouldDeleteFromList(rl)) {
                     await promptDeleteJob(rl);
                 }
                 continue;
@@ -63,27 +95,7 @@ const run = async () => {
 
             if (choice === "2") {
                 // Import new listing from pasted text.
-                console.log("\nPaste job text now.");
-                console.log("Press Enter on an empty line to submit, then confirm y/n.");
-                console.log("Type CANCEL to restart paste, or EXIT to return to menu.");
-                const pasteResult = await readMultilineWithConfirm(rl);
-                if (pasteResult.exited) {
-                    console.log("Paste exited. Returning to menu.");
-                    continue;
-                }
-                if (pasteResult.cancelled) {
-                    console.log("Paste canceled. Returning to menu.");
-                    continue;
-                }
-
-                const rawText = pasteResult.text;
-                if (rawText.length < 20) {
-                    console.log("Job text must be at least 20 characters.");
-                    continue;
-                }
-
-                const result = await importJobFromText(rawText, "employer-cli");
-                console.log(`Imported #${result.job.id}: ${result.job.title} (${result.extractionMode})`);
+                await importPastedJob(rl);
                 continue;
             }
 
@@ -107,8 +119,10 @@ const run = async () => {
     }
 };
 
-run().catch(error => {
+try {
+    await run();
+} catch (error) {
     // Top-level CLI error handler.
     console.error("Employer CLI failed:", error);
     process.exit(1);
-});
+}

@@ -9,7 +9,7 @@ import {
     isRequiredString
 } from "../utils/requestValidation.js";
 
-const VALID_STATUSES: ApplicationStatus[] = ["Submitted", "Reviewing", "Accepted", "Rejected"];
+const VALID_STATUSES = new Set<ApplicationStatus>(["Submitted", "Reviewing", "Accepted", "Rejected"]);
 
 export const listApplications = (req: Request, res: Response) => {
     const currentUser = res.locals.currentUser as DemoSession | undefined;
@@ -18,10 +18,10 @@ export const listApplications = (req: Request, res: Response) => {
     // Candidates can only see their own history; recruiters may filter by any applicant email.
     const effectiveEmail = currentUser?.role === "candidate" ? currentUser.email : requestedEmail;
 
-    if (effectiveEmail && !isValidOptionalEmail(effectiveEmail)) {
+    if (effectiveEmail !== undefined && !isValidOptionalEmail(effectiveEmail)) {
         return res.status(400).json({ error: "email must be valid if provided" });
     }
-    if (requestedStatus && !VALID_STATUSES.includes(requestedStatus as ApplicationStatus)) {
+    if (requestedStatus !== undefined && !VALID_STATUSES.has(requestedStatus as ApplicationStatus)) {
         return res.status(400).json({ error: "status must be one of Submitted, Reviewing, Accepted, Rejected" });
     }
 
@@ -84,7 +84,7 @@ export const updateApplicationStatus = (req: Request, res: Response) => {
     if (parsedApplicationId === null) {
         return res.status(400).json({ error: "id must be a positive integer" });
     }
-    if (typeof nextStatus !== "string" || !VALID_STATUSES.includes(nextStatus as ApplicationStatus)) {
+    if (typeof nextStatus !== "string" || !VALID_STATUSES.has(nextStatus as ApplicationStatus)) {
         return res.status(400).json({ error: "status must be one of Submitted, Reviewing, Accepted, Rejected" });
     }
 

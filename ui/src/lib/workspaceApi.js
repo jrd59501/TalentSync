@@ -2,6 +2,11 @@
 export class WorkspaceApi {
   static authToken = "";
 
+  static buildPathWithQuery(pathname, queryParams) {
+    const queryString = queryParams.toString();
+    return queryString ? `${pathname}?${queryString}` : pathname;
+  }
+
   static setAuthToken(token) {
     WorkspaceApi.authToken = token || "";
   }
@@ -49,7 +54,7 @@ export class WorkspaceApi {
     if (category) queryParams.set("category", category);
     if (query) queryParams.set("q", query);
 
-    const response = await WorkspaceApi.request(`/jobs${queryParams.toString() ? `?${queryParams.toString()}` : ""}`);
+    const response = await WorkspaceApi.request(WorkspaceApi.buildPathWithQuery("/jobs", queryParams));
     if (!response.ok) throw new Error(`Failed: ${response.status}`);
     return WorkspaceApi.readJson(response, []);
   }
@@ -148,7 +153,7 @@ export class WorkspaceApi {
     const queryParams = new URLSearchParams();
     if (email) queryParams.set("email", email);
 
-    const response = await WorkspaceApi.request(`/applications${queryParams.toString() ? `?${queryParams.toString()}` : ""}`);
+    const response = await WorkspaceApi.request(WorkspaceApi.buildPathWithQuery("/applications", queryParams));
     const body = await WorkspaceApi.readJson(response, []);
     if (!response.ok) throw new Error(body?.error ?? `Failed: ${response.status}`);
     return body;

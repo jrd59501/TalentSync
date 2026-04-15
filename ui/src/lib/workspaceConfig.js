@@ -273,7 +273,7 @@ class InfoStatusRule extends StatusRule {
 
 class SuccessStatusRule extends StatusRule {
   matches(message) {
-    return Boolean(message);
+    return !!message;
   }
 
   getTone() {

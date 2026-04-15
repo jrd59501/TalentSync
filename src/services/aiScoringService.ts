@@ -40,6 +40,7 @@ export type ExtractedCandidateProfile = {
 // Chat Completions endpoint used by both AI flows.
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 const DEFAULT_MODEL = "gpt-4o-mini";
+const FENCED_JSON_REGEX = /```(?:json)?\s*([\s\S]*?)```/i;
 
 // Safety helper to keep scores inside 0..100.
 const clampScore = (value: number): number => {
@@ -53,7 +54,7 @@ const clampScore = (value: number): number => {
 // Parse AI output for reranking (expects JSON array).
 const parseJsonArray = (content: string): AiRerankResult[] => {
     const trimmed = content.trim();
-    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    const fenced = FENCED_JSON_REGEX.exec(trimmed);
     const jsonText = fenced ? fenced[1].trim() : trimmed;
 
     const parsed = JSON.parse(jsonText) as unknown;
@@ -104,7 +105,7 @@ const normalizeList = (value: unknown, maxSize: number): string[] => {
 // Parse AI output for extractor flow (expects JSON object).
 const parseJsonObject = (content: string): Record<string, unknown> | null => {
     const trimmed = content.trim();
-    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    const fenced = FENCED_JSON_REGEX.exec(trimmed);
     const jsonText = fenced ? fenced[1].trim() : trimmed;
     const parsed = JSON.parse(jsonText) as unknown;
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {

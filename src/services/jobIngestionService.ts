@@ -59,12 +59,13 @@ const unique = (values: string[]): string[] => {
 
 // Escape regex control chars before building a dynamic regex.
 const escapeRegex = (value: string): string => {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 };
 
 // Check whether a full term appears in text.
 const containsWholeTerm = (text: string, term: string): boolean => {
-    const pattern = `\\b${escapeRegex(term).replace(/\s+/g, "\\s+")}\\b`;
+    const normalizedTerm = escapeRegex(term).replace(/\s+/g, String.raw`\s+`);
+    const pattern = `${String.raw`\b`}${normalizedTerm}${String.raw`\b`}`;
     return new RegExp(pattern, "i").test(text);
 };
 
@@ -208,9 +209,9 @@ export class JobIngestionService {
             .map(line => line.trim())
             .filter(Boolean);
         // Prefer explicit "Title: ..." line when present.
-        const labeledTitle = lines.find(line => /^title\s*[:\-]/i.test(line));
+        const labeledTitle = lines.find(line => /^title\s*[:-]/i.test(line));
         if (labeledTitle) {
-            return labeledTitle.replace(/^title\s*[:\-]\s*/i, "").slice(0, 120) || "Imported Job Listing";
+            return labeledTitle.replace(/^title\s*[:-]\s*/i, "").slice(0, 120) || "Imported Job Listing";
         }
 
         // Else use first line if it looks like a title.

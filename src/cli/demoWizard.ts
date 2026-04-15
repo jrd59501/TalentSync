@@ -6,6 +6,78 @@ import { importJobFromText } from "../services/jobIngestionService.js";
 import { findMatches } from "../services/matchingService.js";
 import { parseSkills, readArgValue, readMultilineWithConfirm } from "./cliUtils.js";
 
+const printTopMatches = async (selectedSkills: string[], summary: string) => {
+    const results = await findMatches(selectedSkills, summary);
+    console.log("\nTop Matches");
+    for (const [index, result] of results.slice(0, 5).entries()) {
+        console.log(
+            `${index + 1}. ${result.jobTitle} | Score: ${result.score} ` +
+            `(skills ${result.skillScore}, experience ${result.experienceScore})`
+        );
+    }
+};
+
+const printImportedJob = async (rawJobText: string) => {
+    const imported = await importJobFromText(rawJobText, "teacher-demo");
+    console.log("\nImported Job Listing");
+    console.log(`- ID: ${imported.job.id}`);
+    console.log(`- Title: ${imported.job.title}`);
+    console.log(`- Extraction: ${imported.extractionMode}`);
+    console.log(`- Skills: ${imported.job.requiredSkills.join(", ")}`);
+    console.log(`- Keywords: ${imported.job.meaningKeywords.join(", ")}`);
+    return imported;
+};
+
+const loadRawJobText = (jobTextArg: string | null, jobFileArg: string | null): string => {
+    if (jobTextArg) {
+        return jobTextArg;
+    }
+    if (jobFileArg !== null) {
+        return readFileSync(jobFileArg, "utf8");
+    }
+
+    return "";
+};
+
+const runNonInteractiveDemo = async (rawJobText: string, skillsArg: string, summaryArg: string | null) => {
+    const imported = await importJobFromText(rawJobText, "teacher-demo");
+    const selectedSkills = parseSkills(skillsArg);
+    if (selectedSkills.length === 0) {
+        throw new Error("Please provide at least one skill.");
+    }
+
+    console.log("Imported Job Listing");
+    console.log(`- ID: ${imported.job.id}`);
+    console.log(`- Title: ${imported.job.title}`);
+    console.log(`- Extraction: ${imported.extractionMode}`);
+    await printTopMatches(selectedSkills, summaryArg ?? "");
+};
+
+const promptCandidateSkills = async (rl: ReturnType<typeof createInterface>): Promise<string[] | null> => {
+    const skillsInput = await rl.question("\nCandidate skills (comma-separated, or EXIT): ");
+    if (skillsInput.trim().toLowerCase() === "exit") {
+        return null;
+    }
+
+    const selectedSkills = parseSkills(skillsInput);
+    if (selectedSkills.length === 0) {
+        console.log("Please provide at least one skill.");
+        return [];
+    }
+
+    return selectedSkills;
+};
+
+const promptCandidateSummary = async (rl: ReturnType<typeof createInterface>): Promise<string | null> => {
+    const summary = await rl.question("Candidate experience summary (or EXIT): ");
+    return summary.trim().toLowerCase() === "exit" ? null : summary;
+};
+
+const shouldRunAnotherRound = async (rl: ReturnType<typeof createInterface>): Promise<boolean> => {
+    const again = (await rl.question("\nRun another demo round? (Y/n): ")).trim().toLowerCase();
+    return again !== "n" && again !== "no" && again !== "exit";
+};
+
 const run = async () => {
     // Initialize DB once before demo starts.
     jobsRepository.ensureInitialized();
@@ -15,32 +87,11 @@ const run = async () => {
     const skillsArg = readArgValue("--skills");
     const summaryArg = readArgValue("--summary");
 
-    let rawJobText = jobTextArg ?? "";
-    // Optional: load long job text from file.
-    if (!rawJobText && jobFileArg) {
-        rawJobText = readFileSync(jobFileArg, "utf8");
-    }
+    let rawJobText = loadRawJobText(jobTextArg, jobFileArg);
 
     // Fast non-interactive flow for one-liner demos.
-    if (rawJobText && skillsArg) {
-        const imported = await importJobFromText(rawJobText, "teacher-demo");
-        const selectedSkills = parseSkills(skillsArg);
-        if (selectedSkills.length === 0) {
-            throw new Error("Please provide at least one skill.");
-        }
-
-        const results = await findMatches(selectedSkills, summaryArg ?? "");
-        console.log("Imported Job Listing");
-        console.log(`- ID: ${imported.job.id}`);
-        console.log(`- Title: ${imported.job.title}`);
-        console.log(`- Extraction: ${imported.extractionMode}`);
-        console.log("\nTop Matches");
-        results.slice(0, 5).forEach((result, index) => {
-            console.log(
-                `${index + 1}. ${result.jobTitle} | Score: ${result.score} ` +
-                `(skills ${result.skillScore}, experience ${result.experienceScore})`
-            );
-        });
+    if (rawJobText && skillsArg !== null) {
+        await runNonInteractiveDemo(rawJobText, skillsArg, summaryArg);
         return;
     }
 
@@ -71,42 +122,25 @@ const run = async () => {
             }
 
             // Step 2: save parsed job listing.
-            const imported = await importJobFromText(rawJobText, "teacher-demo");
-            console.log("\nImported Job Listing");
-            console.log(`- ID: ${imported.job.id}`);
-            console.log(`- Title: ${imported.job.title}`);
-            console.log(`- Extraction: ${imported.extractionMode}`);
-            console.log(`- Skills: ${imported.job.requiredSkills.join(", ")}`);
-            console.log(`- Keywords: ${imported.job.meaningKeywords.join(", ")}`);
+            await printImportedJob(rawJobText);
 
             // Step 3: candidate profile input.
-            const skillsInput = await rl.question("\nCandidate skills (comma-separated, or EXIT): ");
-            if (skillsInput.trim().toLowerCase() === "exit") {
+            const selectedSkills = await promptCandidateSkills(rl);
+            if (selectedSkills === null) {
                 break;
             }
-            const selectedSkills = parseSkills(skillsInput);
             if (selectedSkills.length === 0) {
-                console.log("Please provide at least one skill.");
                 continue;
             }
 
             // Step 4: rank jobs for candidate.
-            const summary = await rl.question("Candidate experience summary (or EXIT): ");
-            if (summary.trim().toLowerCase() === "exit") {
+            const summary = await promptCandidateSummary(rl);
+            if (summary === null) {
                 break;
             }
-            const results = await findMatches(selectedSkills, summary);
+            await printTopMatches(selectedSkills, summary);
 
-            console.log("\nTop Matches");
-            results.slice(0, 5).forEach((result, index) => {
-                console.log(
-                    `${index + 1}. ${result.jobTitle} | Score: ${result.score} ` +
-                    `(skills ${result.skillScore}, experience ${result.experienceScore})`
-                );
-            });
-
-            const again = (await rl.question("\nRun another demo round? (Y/n): ")).trim().toLowerCase();
-            if (again === "n" || again === "no" || again === "exit") {
+            if (!await shouldRunAnotherRound(rl)) {
                 break;
             }
 
@@ -119,8 +153,10 @@ const run = async () => {
     }
 };
 
-run().catch(error => {
+try {
+    await run();
+} catch (error) {
     // Top-level CLI error handler.
     console.error("Demo failed:", error);
     process.exit(1);
-});
+}

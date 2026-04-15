@@ -15,6 +15,67 @@ import {
 const INVALID_ID_ERROR = "id must be a positive integer";
 const NOT_FOUND_ERROR = "job not found";
 
+type CreateJobListingBody = {
+    title?: unknown;
+    requiredSkills?: unknown;
+    meaningKeywords?: unknown;
+    category?: unknown;
+    sourceType?: unknown;
+    sourceText?: unknown;
+};
+
+type CreateJobListingInput = {
+    title: string;
+    requiredSkills: string[];
+    meaningKeywords: string[];
+    category: string | null;
+    sourceType: string;
+    sourceText: string | null;
+};
+
+const getCreateJobListingError = (body: CreateJobListingBody): string | null => {
+    if (!isRequiredString(body.title, 120)) {
+        return "title is required and must be 120 characters or fewer";
+    }
+    if (!isStringArray(body.requiredSkills)) {
+        return "requiredSkills must be an array of strings";
+    }
+    if (!isStringArray(body.meaningKeywords)) {
+        return "meaningKeywords must be an array of strings";
+    }
+    if (!isOptionalNullableString(body.category)) {
+        return "category must be a string if provided";
+    }
+    if (!isOptionalNullableStringWithin(body.category, 80)) {
+        return "category must be 80 characters or fewer";
+    }
+    if (!isOptionalNullableString(body.sourceType)) {
+        return "sourceType must be a string if provided";
+    }
+    if (!isOptionalNullableString(body.sourceText)) {
+        return "sourceText must be a string if provided";
+    }
+    if (!isOptionalNullableStringWithin(body.sourceText, 20000)) {
+        return "sourceText must be 20000 characters or fewer";
+    }
+
+    return null;
+};
+
+const normalizeCreateJobListingInput = (body: CreateJobListingBody): CreateJobListingInput => {
+    const normalizedRequiredSkills = normalizeSkills(body.requiredSkills as string[]).slice(0, 20);
+    const normalizedMeaningKeywords = normalizeSkills(body.meaningKeywords as string[]).slice(0, 30);
+
+    return {
+        title: (body.title as string).trim(),
+        requiredSkills: normalizedRequiredSkills,
+        meaningKeywords: normalizedMeaningKeywords,
+        category: typeof body.category === "string" ? body.category : null,
+        sourceType: typeof body.sourceType === "string" ? body.sourceType : "ui-draft-save",
+        sourceText: typeof body.sourceText === "string" ? body.sourceText.slice(0, 12000) : null
+    };
+};
+
 export const listJobListings = (req: Request, res: Response) => {
     // Optional query filters for employer browsing.
     const requestedCategory = typeof req.query.category === "string" ? req.query.category : undefined;
@@ -132,59 +193,23 @@ export const previewJobListing = async (req: Request, res: Response) => {
 };
 
 export const createJobListing = (req: Request, res: Response) => {
-    const {
-        title,
-        requiredSkills,
-        meaningKeywords,
-        category: categoryInput,
-        sourceType,
-        sourceText
-    } = req.body ?? {};
-
-    if (!isRequiredString(title, 120)) {
-        return res.status(400).json({ error: "title is required and must be 120 characters or fewer" });
-    }
-    if (!isStringArray(requiredSkills)) {
-        return res.status(400).json({ error: "requiredSkills must be an array of strings" });
-    }
-    if (!isStringArray(meaningKeywords)) {
-        return res.status(400).json({ error: "meaningKeywords must be an array of strings" });
-    }
-    if (!isOptionalNullableString(categoryInput)) {
-        return res.status(400).json({ error: "category must be a string if provided" });
-    }
-    if (!isOptionalNullableStringWithin(categoryInput, 80)) {
-        return res.status(400).json({ error: "category must be 80 characters or fewer" });
-    }
-    if (!isOptionalNullableString(sourceType)) {
-        return res.status(400).json({ error: "sourceType must be a string if provided" });
-    }
-    if (!isOptionalNullableString(sourceText)) {
-        return res.status(400).json({ error: "sourceText must be a string if provided" });
-    }
-    if (!isOptionalNullableStringWithin(sourceText, 20000)) {
-        return res.status(400).json({ error: "sourceText must be 20000 characters or fewer" });
+    const body = (req.body ?? {}) as CreateJobListingBody;
+    const validationError = getCreateJobListingError(body);
+    if (validationError) {
+        return res.status(400).json({ error: validationError });
     }
 
-    const normalizedRequiredSkills = normalizeSkills(requiredSkills).slice(0, 20);
-    const normalizedMeaningKeywords = normalizeSkills(meaningKeywords).slice(0, 30);
+    const normalizedInput = normalizeCreateJobListingInput(body);
 
-    if (normalizedRequiredSkills.length === 0) {
+    if (normalizedInput.requiredSkills.length === 0) {
         return res.status(400).json({ error: "requiredSkills must contain at least one valid skill" });
     }
-    if (normalizedMeaningKeywords.length === 0) {
+    if (normalizedInput.meaningKeywords.length === 0) {
         return res.status(400).json({ error: "meaningKeywords must contain at least one valid keyword" });
     }
 
     try {
-        const job = jobsRepository.addJob({
-            title: title.trim(),
-            requiredSkills: normalizedRequiredSkills,
-            meaningKeywords: normalizedMeaningKeywords,
-            category: typeof categoryInput === "string" ? categoryInput : null,
-            sourceType: typeof sourceType === "string" ? sourceType : "ui-draft-save",
-            sourceText: typeof sourceText === "string" ? sourceText.slice(0, 12000) : null
-        });
+        const job = jobsRepository.addJob(normalizedInput);
 
         return res.status(201).json(job);
     } catch (error) {

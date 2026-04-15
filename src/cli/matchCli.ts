@@ -8,12 +8,12 @@ import { parseSkills, readArgValue } from "./cliUtils.js";
 const printResults = async (selectedSkills: string[], experienceSummary: string) => {
     const results = await findMatches(selectedSkills, experienceSummary);
     console.log("\nTop Matches");
-    results.slice(0, 10).forEach((result, index) => {
+    for (const [index, result] of results.slice(0, 10).entries()) {
         const aiInfo = result.aiScore === null
             ? "AI: off/fallback"
             : `AI: ${result.aiScore}`;
         // Reason is only present when AI rerank returns one.
-        const reason = result.aiReason ? ` | Reason: ${result.aiReason}` : "";
+        const reason = result.aiReason !== null ? ` | Reason: ${result.aiReason}` : "";
 
         console.log(
             `${index + 1}. ${result.jobTitle} | Score: ${result.score} | ` +
@@ -21,7 +21,7 @@ const printResults = async (selectedSkills: string[], experienceSummary: string)
         );
         console.log(`   Matched Skills: ${result.matchedSkills.join(", ") || "none"}`);
         console.log(`   Matched Keywords: ${result.matchedKeywords.join(", ") || "none"}${reason}`);
-    });
+    }
 };
 
 const run = async () => {
@@ -32,7 +32,7 @@ const run = async () => {
     // npm run cli:match -- --skills "node,ts" --summary "..."
     const skillArg = readArgValue("--skills");
     const summaryArg = readArgValue("--summary") ?? "";
-    if (skillArg) {
+    if (skillArg !== null) {
         const selectedSkills = parseSkills(skillArg);
         if (selectedSkills.length === 0) {
             throw new Error("No valid skills provided in --skills.");
@@ -72,8 +72,10 @@ const run = async () => {
     console.log("Goodbye.");
 };
 
-run().catch(error => {
+try {
+    await run();
+} catch (error) {
     // Top-level error handler for CLI process.
     console.error("CLI failed:", error);
     process.exit(1);
-});
+}

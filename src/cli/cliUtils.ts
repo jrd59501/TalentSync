@@ -10,7 +10,7 @@ export const parseSkills = (raw: string): string[] => {
 
 // Read optional CLI argument value (e.g. --skills value).
 export const readArgValue = (name: string): string | null => {
-    const index = process.argv.findIndex(arg => arg === name);
+    const index = process.argv.indexOf(name);
     if (index === -1 || index + 1 >= process.argv.length) {
         return null;
     }

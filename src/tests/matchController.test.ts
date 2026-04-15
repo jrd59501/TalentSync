@@ -40,7 +40,7 @@ describe("matchUser controller", () => {
 
         expect(res.status).not.toHaveBeenCalled();
 
-        const payload = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
+        const payload = vi.mocked(res.json).mock.calls[0][0];
         expect(Array.isArray(payload)).toBe(true);
         expect(payload[0].jobId).toBe(2);
         expect(payload[0].jobTitle).toBe("Frontend Developer");
@@ -77,7 +77,7 @@ describe("matchUser controller", () => {
 
         await matchUser(req, res);
 
-        const payload = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
+        const payload = vi.mocked(res.json).mock.calls[0][0];
         expect(payload[0].jobTitle).toBe("Frontend Developer");
         expect(payload[0].matchedSkills).toEqual(["react", "javascript", "css"]);
         expect(payload[0].matchedKeywords).toContain("frontend");
@@ -94,7 +94,7 @@ describe("matchUser controller", () => {
 
         await matchUser(req, res);
 
-        const payload = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0] as Array<{
+        const payload = vi.mocked(res.json).mock.calls[0][0] as Array<{
             jobTitle: string;
             score: number;
         }>;

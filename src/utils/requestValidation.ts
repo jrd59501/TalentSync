@@ -9,11 +9,11 @@ export const isRequiredString = (value: unknown, maxLength: number): value is st
 };
 
 export const isOptionalString = (value: unknown): value is string | undefined => {
-    return typeof value === "undefined" || typeof value === "string";
+    return value === undefined || typeof value === "string";
 };
 
 export const isOptionalNullableString = (value: unknown): value is string | null | undefined => {
-    return typeof value === "undefined" || value === null || typeof value === "string";
+    return value === undefined || value === null || typeof value === "string";
 };
 
 export const isOptionalStringWithin = (value: unknown, maxLength: number): value is string | undefined => {
