@@ -234,6 +234,7 @@ Answer:
 Answer:
 
 - improve tests after a clean Linux dependency install
+- improve tests after a clean same-platform dependency install
 - add more edit/update flows
 - extract more frontend state into hooks
 - improve backend auth if the project grows

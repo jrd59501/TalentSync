@@ -17,6 +17,7 @@ bin/
 *.suo
 *.wsuo
 *.cache
+*.save
 
 data/*.db
 data/*.db-wal

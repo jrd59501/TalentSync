@@ -69,10 +69,29 @@ export type DemoSession = {
     email: string;
 };
 
+const getRequiredDemoPassword = (envName: "DEMO_ADMIN_PASSWORD" | "DEMO_CANDIDATE_PASSWORD"): string | null => {
+    const value = process.env[envName];
+    if (typeof value !== "string" || !value.trim()) {
+        return null;
+    }
+
+    return value;
+};
+
 // These sample users are enough to demonstrate recruiter vs candidate access.
 const demoUsers = [
-    { role: "admin" as const, name: "Riley Recruiter", email: "admin@talentsync.demo", password: "admin123" },
-    { role: "candidate" as const, name: "Jordan Candidate", email: "candidate@talentsync.demo", password: "candidate123" }
+    {
+        role: "admin" as const,
+        name: "Riley Recruiter",
+        email: "admin@talentsync.demo",
+        password: getRequiredDemoPassword("DEMO_ADMIN_PASSWORD")
+    },
+    {
+        role: "candidate" as const,
+        name: "Jordan Candidate",
+        email: "candidate@talentsync.demo",
+        password: getRequiredDemoPassword("DEMO_CANDIDATE_PASSWORD")
+    }
 ];
 
 // In-memory sessions keep auth simple for a student project.
@@ -89,7 +108,9 @@ const getBearerToken = (authorizationHeader: string | undefined): string | null 
 
 export const loginDemoUser = (email: string, password: string): DemoSession | null => {
     const matchedUser = demoUsers.find(user =>
-        user.email.toLowerCase() === email.trim().toLowerCase() && user.password === password
+        user.password !== null &&
+        user.email.toLowerCase() === email.trim().toLowerCase() &&
+        user.password === password
     );
     if (!matchedUser) {
         return null;

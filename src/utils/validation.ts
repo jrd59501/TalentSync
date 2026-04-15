@@ -13,7 +13,7 @@ export const normalizeSkills = (skills: string[]): string[] => {
 
 // Accept undefined/null/blank as "no email", otherwise enforce format.
 export const isValidOptionalEmail = (email: unknown): boolean => {
-    if (typeof email === "undefined" || email === null) {
+    if (email === undefined || email === null) {
         return true;
     }
     if (typeof email !== "string") {

@@ -82,7 +82,7 @@ describe("importJobListing controller", () => {
             null
         );
         expect(res.status).toHaveBeenCalledWith(201);
-        const payload = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
+        const payload = vi.mocked(res.json).mock.calls[0][0];
         expect(payload.job.id).toBe(200);
         expect(payload.extractionMode).toBe("heuristic");
     });
@@ -105,7 +105,7 @@ describe("list/get job controller", () => {
         listJobListings(req, res);
 
         expect(mockedSearch).toHaveBeenCalledWith({ category: undefined, query: undefined });
-        const payload = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
+        const payload = vi.mocked(res.json).mock.calls[0][0];
         expect(payload).toHaveLength(2);
         expect(payload[0].id).toBe(1);
     });
@@ -175,7 +175,7 @@ describe("list/get job controller", () => {
         getJobListingById(req, res);
 
         expect(mockedGetById).toHaveBeenCalledWith(3);
-        const payload = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
+        const payload = vi.mocked(res.json).mock.calls[0][0];
         expect(payload.id).toBe(3);
     });
 
@@ -234,6 +234,6 @@ describe("deleteJobListing controller", () => {
 
         expect(mockedDelete).toHaveBeenCalledWith(101);
         expect(res.status).toHaveBeenCalledWith(204);
-        expect((res.send as ReturnType<typeof vi.fn>)).toHaveBeenCalled();
+        expect(vi.mocked(res.send)).toHaveBeenCalled();
     });
 });

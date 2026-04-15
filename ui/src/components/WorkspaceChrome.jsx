@@ -1,4 +1,5 @@
 import { SECTION_DEFINITIONS } from "../lib/workspaceConfig.js";
+import PropTypes from "../lib/propTypes.js";
 
 export function WorkspaceHeader({ currentUser, onLogout, jobsCount, candidatesCount, matchesCount, applicationCount }) {
   const isAdmin = currentUser.role === "admin";
@@ -95,3 +96,34 @@ export function SectionIntro({ title, text }) {
     </>
   );
 }
+
+const currentUserShape = PropTypes.shape({
+  role: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  email: PropTypes.string.isRequired
+});
+
+WorkspaceHeader.propTypes = {
+  currentUser: currentUserShape.isRequired,
+  onLogout: PropTypes.func.isRequired,
+  jobsCount: PropTypes.number.isRequired,
+  candidatesCount: PropTypes.number.isRequired,
+  matchesCount: PropTypes.number.isRequired,
+  applicationCount: PropTypes.number.isRequired
+};
+
+WorkflowStrip.propTypes = {
+  title: PropTypes.string.isRequired,
+  steps: PropTypes.arrayOf(PropTypes.string).isRequired
+};
+
+SectionTabs.propTypes = {
+  currentUser: currentUserShape.isRequired,
+  activeView: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired
+};
+
+SectionIntro.propTypes = {
+  title: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired
+};

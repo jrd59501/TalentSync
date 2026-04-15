@@ -33,12 +33,13 @@ const tokenize = (text: string): string[] => {
 };
 
 const escapeRegex = (value: string): string => {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 };
 
 // Phrase-level match helper used against skill lexicon.
 const containsWholeTerm = (text: string, term: string): boolean => {
-    const pattern = `\\b${escapeRegex(term).replace(/\s+/g, "\\s+")}\\b`;
+    const normalizedTerm = escapeRegex(term).replace(/\s+/g, String.raw`\s+`);
+    const pattern = `${String.raw`\b`}${normalizedTerm}${String.raw`\b`}`;
     return new RegExp(pattern, "i").test(text);
 };
 

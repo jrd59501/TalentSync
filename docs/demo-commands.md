@@ -13,6 +13,8 @@ If this file is not found, `Set-Location` into the cloned project folder first.
 
 ## 2) One-time install
 
+If you are using WSL or Linux, install dependencies inside that environment instead of reusing Windows `node_modules`.
+
 ```powershell
 npm install
 npm run ui:install
@@ -73,5 +75,6 @@ Start-Process powershell -WorkingDirectory (Get-Location) -ArgumentList '-NoExit
 
 ```powershell
 npm run build
-npm test
 ```
+
+`npm test` may require a clean native dependency install in the current platform environment.

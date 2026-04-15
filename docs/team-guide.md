@@ -1,4 +1,4 @@
-# TalentSync Team README
+# TalentSync Team Guide
 
 ## Purpose
 
@@ -51,19 +51,24 @@ The app is intentionally simple enough for a student project, but it is structur
 
 ## Demo Accounts
 
-Use these credentials:
+Use these emails:
 
 - Recruiter account:
   - `admin@talentsync.demo`
-  - `admin123`
 
 - Candidate account:
   - `candidate@talentsync.demo`
-  - `candidate123`
+
+The passwords are configured locally through environment variables:
+
+- `DEMO_ADMIN_PASSWORD`
+- `DEMO_CANDIDATE_PASSWORD`
 
 ## How To Run
 
 ### Local Dev
+
+If dependencies were installed on another platform first, reinstall them in the current environment before demoing.
 
 Install backend dependencies:
 
@@ -80,7 +85,8 @@ npm run ui:install
 Run backend:
 
 ```bash
-npm run dev
+npm run build
+npm start
 ```
 
 Run frontend in another terminal:
@@ -193,51 +199,51 @@ Responsibilities:
 
 ### Backend
 
-- [src/app.ts](./src/app.ts)
+- [src/app.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/app.ts)
   Express app setup, routes, middleware, frontend serving
 
-- [src/middleware/security.ts](./src/middleware/security.ts)
+- [src/middleware/security.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/middleware/security.ts)
   security headers, rate limiting, simple auth, role protection
 
-- [src/controllers/jobController.ts](./src/controllers/jobController.ts)
+- [src/controllers/jobController.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/controllers/jobController.ts)
   job endpoints
 
-- [src/controllers/candidateController.ts](./src/controllers/candidateController.ts)
+- [src/controllers/candidateController.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/controllers/candidateController.ts)
   candidate endpoints
 
-- [src/controllers/applicationController.ts](./src/controllers/applicationController.ts)
+- [src/controllers/applicationController.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/controllers/applicationController.ts)
   application endpoints
 
-- [src/repositories/jobRepository.ts](./src/repositories/jobRepository.ts)
+- [src/repositories/jobRepository.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/repositories/jobRepository.ts)
   SQLite job storage
 
-- [src/repositories/candidateRepository.ts](./src/repositories/candidateRepository.ts)
+- [src/repositories/candidateRepository.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/repositories/candidateRepository.ts)
   SQLite candidate storage
 
-- [src/repositories/applicationRepository.ts](./src/repositories/applicationRepository.ts)
+- [src/repositories/applicationRepository.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/repositories/applicationRepository.ts)
   SQLite application storage
 
-- [src/utils/requestValidation.ts](./src/utils/requestValidation.ts)
+- [src/utils/requestValidation.ts](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/src/utils/requestValidation.ts)
   shared controller validation helpers
 
 ### Frontend
 
-- [ui/src/App.jsx](./ui/src/App.jsx)
+- [ui/src/App.jsx](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/App.jsx)
   top-level app state and behavior
 
-- [ui/src/lib/workspaceApi.js](./ui/src/lib/workspaceApi.js)
+- [ui/src/lib/workspaceApi.js](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/lib/workspaceApi.js)
   API wrapper used by the frontend
 
-- [ui/src/lib/workspaceConfig.js](./ui/src/lib/workspaceConfig.js)
+- [ui/src/lib/workspaceConfig.js](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/lib/workspaceConfig.js)
   section definitions, formatters, status rules
 
-- [ui/src/components/LoginScreen.jsx](./ui/src/components/LoginScreen.jsx)
+- [ui/src/components/LoginScreen.jsx](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/components/LoginScreen.jsx)
   login screen
 
-- [ui/src/components/RecruiterViews.jsx](./ui/src/components/RecruiterViews.jsx)
+- [ui/src/components/RecruiterViews.jsx](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/components/RecruiterViews.jsx)
   recruiter-side screens
 
-- [ui/src/components/CandidateViews.jsx](./ui/src/components/CandidateViews.jsx)
+- [ui/src/components/CandidateViews.jsx](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/components/CandidateViews.jsx)
   candidate-side screens
 
 ## OOP Examples We Can Explain
@@ -248,7 +254,7 @@ These are the clearest code examples for class discussion.
 
 File:
 
-- [ui/src/lib/workspaceConfig.js](./ui/src/lib/workspaceConfig.js)
+- [ui/src/lib/workspaceConfig.js](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/lib/workspaceConfig.js)
 
 Example:
 
@@ -264,7 +270,7 @@ What to say:
 
 File:
 
-- [ui/src/lib/workspaceConfig.js](./ui/src/lib/workspaceConfig.js)
+- [ui/src/lib/workspaceConfig.js](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/lib/workspaceConfig.js)
 
 Example:
 
@@ -281,7 +287,7 @@ What to say:
 
 File:
 
-- [ui/src/lib/workspaceApi.js](./ui/src/lib/workspaceApi.js)
+- [ui/src/lib/workspaceApi.js](/mnt/c/Users/Justin%20Denny/Desktop/TalentSync/TalentSync/ui/src/lib/workspaceApi.js)
 
 What to say:
 

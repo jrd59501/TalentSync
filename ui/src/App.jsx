@@ -7,6 +7,7 @@ import { DEMO_USERS, SECTION_DEFINITIONS, WorkspaceFormatter } from "./lib/works
 import { WorkspaceApi } from "./lib/workspaceApi.js";
 
 export default function App() {
+  const runtimeWindow = globalThis.window;
   // Top-level state lives here so the recruiter and candidate views stay mostly presentational.
   const [authToken, setAuthToken] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
@@ -97,11 +98,12 @@ export default function App() {
   const loadApplications = async (emailOverride) => {
     setIsApplicationListPending(true);
     try {
-      const emailFilter = typeof emailOverride === "string"
-        ? emailOverride
-        : currentUser?.role === "candidate"
-          ? (applicationEmailInput || currentUser.email)
-          : undefined;
+      let emailFilter;
+      if (typeof emailOverride === "string") {
+        emailFilter = emailOverride;
+      } else if (currentUser?.role === "candidate") {
+        emailFilter = applicationEmailInput || currentUser.email;
+      }
       const nextApplications = WorkspaceFormatter.safeArray(await WorkspaceApi.getApplications(emailFilter));
       setSubmittedApplications(nextApplications);
     } catch (error) {
@@ -212,7 +214,7 @@ export default function App() {
   };
 
   const deleteJobById = async (jobId) => {
-    if (!window.confirm(`Delete job #${jobId}?`)) return;
+    if (!runtimeWindow.confirm(`Delete job #${jobId}?`)) return;
 
     setJobStatusMessage(`Deleting job #${jobId}...`);
     setIsJobRequestPending(true);
@@ -293,6 +295,7 @@ export default function App() {
       return;
     }
 
+    const draftModeSuffix = candidateDraftMode ? ` (${candidateDraftMode})` : "";
     setCandidateStatusMessage("Saving candidate...");
     setIsCandidateRequestPending(true);
     try {
@@ -306,7 +309,7 @@ export default function App() {
       });
 
       setCandidateStatusMessage(
-        `Saved candidate #${body?.id ?? "?"}: ${body?.fullName ?? ""}${candidateDraftMode ? ` (${candidateDraftMode})` : ""}.`
+        `Saved candidate #${body?.id ?? "?"}: ${body?.fullName ?? ""}${draftModeSuffix}.`
       );
       setCandidateDraftMode("");
       await loadCandidates();
@@ -318,7 +321,7 @@ export default function App() {
   };
 
   const deleteCandidateById = async (candidateId) => {
-    if (!window.confirm(`Delete candidate #${candidateId}?`)) return;
+    if (!runtimeWindow.confirm(`Delete candidate #${candidateId}?`)) return;
 
     setCandidateStatusMessage(`Deleting candidate #${candidateId}...`);
     setIsCandidateRequestPending(true);
@@ -415,7 +418,7 @@ export default function App() {
       `Hi Hiring Team,\n\nI am interested in the ${job.title} role (Job #${job.id}).\n\nThanks,\n${applicationNameInput || candidateNameInput || "Candidate"}`
     );
 
-    window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
+    runtimeWindow.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
     setApplicationStatusMessage(`Opened a draft email to ${contactEmail}.`);
   };
 

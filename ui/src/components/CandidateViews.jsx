@@ -1,5 +1,6 @@
 import { SectionIntro } from "./WorkspaceChrome.jsx";
 import { WorkspaceFormatter, WorkspaceStatus } from "../lib/workspaceConfig.js";
+import PropTypes from "../lib/propTypes.js";
 
 export function CandidateProfileView(props) {
   const {
@@ -255,3 +256,89 @@ export function CandidateApplicationsView(props) {
     </section>
   );
 }
+
+const applicationShape = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  jobTitle: PropTypes.string.isRequired,
+  note: PropTypes.string,
+  status: PropTypes.string.isRequired,
+  submittedAt: PropTypes.string.isRequired
+});
+
+const jobShape = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  title: PropTypes.string.isRequired,
+  category: PropTypes.string,
+  requiredSkills: PropTypes.array
+});
+
+const matchShape = PropTypes.shape({
+  jobId: PropTypes.number.isRequired,
+  jobTitle: PropTypes.string.isRequired,
+  score: PropTypes.number.isRequired,
+  skillScore: PropTypes.number.isRequired,
+  experienceScore: PropTypes.number.isRequired,
+  aiScore: PropTypes.number,
+  aiReason: PropTypes.string
+});
+
+const currentUserShape = PropTypes.shape({
+  email: PropTypes.string.isRequired
+});
+
+CandidateProfileView.propTypes = {
+  candidateStatusMessage: PropTypes.string.isRequired,
+  candidateDraftMode: PropTypes.string.isRequired,
+  candidateNameInput: PropTypes.string.isRequired,
+  setCandidateNameInput: PropTypes.func.isRequired,
+  candidateEmailInput: PropTypes.string.isRequired,
+  setCandidateEmailInput: PropTypes.func.isRequired,
+  candidateResumeInput: PropTypes.string.isRequired,
+  setCandidateResumeInput: PropTypes.func.isRequired,
+  resumeChars: PropTypes.number.isRequired,
+  candidateStrengthsInput: PropTypes.string.isRequired,
+  setCandidateStrengthsInput: PropTypes.func.isRequired,
+  candidateSkillsInput: PropTypes.string.isRequired,
+  setCandidateSkillsInput: PropTypes.func.isRequired,
+  candidateSummaryInput: PropTypes.string.isRequired,
+  setCandidateSummaryInput: PropTypes.func.isRequired,
+  canBuildCandidateFromResume: PropTypes.bool.isRequired,
+  isCandidateRequestPending: PropTypes.bool.isRequired,
+  previewCandidateProfile: PropTypes.func.isRequired,
+  saveCandidate: PropTypes.func.isRequired,
+  canRunMatchForCurrentProfile: PropTypes.bool.isRequired,
+  isMatchRequestPending: PropTypes.bool.isRequired,
+  runMatchForCurrentProfile: PropTypes.func.isRequired,
+  candidateSkillList: PropTypes.arrayOf(PropTypes.string).isRequired
+};
+
+CandidateOpportunitiesView.propTypes = {
+  matchStatusMessage: PropTypes.string.isRequired,
+  canRunMatchForCurrentProfile: PropTypes.bool.isRequired,
+  isMatchRequestPending: PropTypes.bool.isRequired,
+  runMatchForCurrentProfile: PropTypes.func.isRequired,
+  setActiveView: PropTypes.func.isRequired,
+  matchResults: PropTypes.arrayOf(matchShape).isRequired,
+  startMockApplication: PropTypes.func.isRequired,
+  contactForJob: PropTypes.func.isRequired,
+  jobs: PropTypes.arrayOf(jobShape).isRequired
+};
+
+CandidateApplicationsView.propTypes = {
+  applicationStatusMessage: PropTypes.string.isRequired,
+  applicationTargetJob: jobShape,
+  applicationNameInput: PropTypes.string.isRequired,
+  setApplicationNameInput: PropTypes.func.isRequired,
+  applicationEmailInput: PropTypes.string.isRequired,
+  setApplicationEmailInput: PropTypes.func.isRequired,
+  applicationNoteInput: PropTypes.string.isRequired,
+  setApplicationNoteInput: PropTypes.func.isRequired,
+  submitMockApplication: PropTypes.func.isRequired,
+  canSubmitMockApplication: PropTypes.bool.isRequired,
+  isApplicationPending: PropTypes.bool.isRequired,
+  loadApplications: PropTypes.func.isRequired,
+  currentUser: currentUserShape.isRequired,
+  contactForJob: PropTypes.func.isRequired,
+  isApplicationListPending: PropTypes.bool.isRequired,
+  submittedApplications: PropTypes.arrayOf(applicationShape).isRequired
+};
