@@ -4,8 +4,8 @@ import PropTypes from "../lib/propTypes.js";
 
 export default function LoginScreen({ onLogin }) {
   const [email, setEmail] = useState("admin@talentsync.demo");
-  const [password, setPassword] = useState("");
-  const [loginMessage, setLoginMessage] = useState("Use a sample account email and the demo password configured in the backend environment.");
+  const [password, setPassword] = useState("TalentSyncRecruiter2026!");
+  const [loginMessage, setLoginMessage] = useState("Use the built-in demo accounts below for recruiter and candidate access.");
   const [isLoginPending, setIsLoginPending] = useState(false);
 
   const submitLogin = async (event) => {
@@ -39,7 +39,7 @@ export default function LoginScreen({ onLogin }) {
           </label>
           <label>
             Password
-            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter configured demo password" />
+            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter demo password" />
           </label>
           <button type="submit" disabled={isLoginPending}>Sign In</button>
         </form>
@@ -47,19 +47,21 @@ export default function LoginScreen({ onLogin }) {
         <div className="loginGrid">
           <button className="loginOption" onClick={() => {
             setEmail("admin@talentsync.demo");
-            setPassword("");
+            setPassword("TalentSyncRecruiter2026!");
           }}>
             <span className="loginRole">Recruiter Account</span>
             <strong>Recruiter Workspace</strong>
             <span>admin@talentsync.demo</span>
+            <span>Password: TalentSyncRecruiter2026!</span>
           </button>
           <button className="loginOption" onClick={() => {
             setEmail("candidate@talentsync.demo");
-            setPassword("");
+            setPassword("TalentSyncCandidate2026!");
           }}>
             <span className="loginRole">Candidate Account</span>
             <strong>Candidate Workspace</strong>
             <span>candidate@talentsync.demo</span>
+            <span>Password: TalentSyncCandidate2026!</span>
           </button>
         </div>
       </section>

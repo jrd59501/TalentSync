@@ -69,13 +69,18 @@ export type DemoSession = {
     email: string;
 };
 
-const getRequiredDemoPassword = (envName: "DEMO_ADMIN_PASSWORD" | "DEMO_CANDIDATE_PASSWORD"): string | null => {
+const defaultDemoPasswords = {
+    DEMO_ADMIN_PASSWORD: "TalentSyncRecruiter2026!",
+    DEMO_CANDIDATE_PASSWORD: "TalentSyncCandidate2026!"
+} as const;
+
+const getDemoPassword = (envName: "DEMO_ADMIN_PASSWORD" | "DEMO_CANDIDATE_PASSWORD"): string => {
     const value = process.env[envName];
-    if (typeof value !== "string" || !value.trim()) {
-        return null;
+    if (typeof value === "string" && value.trim()) {
+        return value.trim();
     }
 
-    return value;
+    return defaultDemoPasswords[envName];
 };
 
 // These sample users are enough to demonstrate recruiter vs candidate access.
@@ -84,13 +89,13 @@ const demoUsers = [
         role: "admin" as const,
         name: "Riley Recruiter",
         email: "admin@talentsync.demo",
-        password: getRequiredDemoPassword("DEMO_ADMIN_PASSWORD")
+        password: getDemoPassword("DEMO_ADMIN_PASSWORD")
     },
     {
         role: "candidate" as const,
         name: "Jordan Candidate",
         email: "candidate@talentsync.demo",
-        password: getRequiredDemoPassword("DEMO_CANDIDATE_PASSWORD")
+        password: getDemoPassword("DEMO_CANDIDATE_PASSWORD")
     }
 ];
 
@@ -108,7 +113,6 @@ const getBearerToken = (authorizationHeader: string | undefined): string | null 
 
 export const loginDemoUser = (email: string, password: string): DemoSession | null => {
     const matchedUser = demoUsers.find(user =>
-        user.password !== null &&
         user.email.toLowerCase() === email.trim().toLowerCase() &&
         user.password === password
     );
