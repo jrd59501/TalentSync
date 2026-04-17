@@ -16,7 +16,7 @@ import { createSimpleRateLimiter, securityHeaders } from "./middleware/security.
 // Create one Express app instance for the whole API.
 const app = express();
 // Port where local server listens.
-const PORT = 3000;
+const port = process.env.PORT || 3000;
 app.disable("x-powered-by");
 const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirectoryPath = path.dirname(currentFilePath);
@@ -77,6 +77,6 @@ app.get(/^\/(?!auth|match|jobs|candidates|applications|health).*/, (req, res, ne
 });
 
 // Start listening for incoming HTTP requests.
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });

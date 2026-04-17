@@ -1,7 +1,8 @@
 import { mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { seedCandidates } from "../data/seedCandidates.js";
+import { resolveDatabasePath } from "../config/storage.js";
 
 export type StoredCandidate = {
     id: number;
@@ -38,7 +39,7 @@ export class SQLiteCandidateRepository {
     private readonly db: DatabaseSync;
     private initialized = false;
 
-    constructor(databasePath: string = resolve(process.cwd(), "data", "talentsync.db")) {
+    constructor(databasePath: string = resolveDatabasePath()) {
         mkdirSync(dirname(databasePath), { recursive: true });
         this.db = new DatabaseSync(databasePath);
         try {

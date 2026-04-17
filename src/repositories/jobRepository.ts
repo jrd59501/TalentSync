@@ -1,7 +1,8 @@
 import { mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { seedJobs } from "../data/seedJobs.js";
+import { resolveDatabasePath } from "../config/storage.js";
 
 // Shape used across app when we talk about a saved job.
 export type StoredJob = {
@@ -37,7 +38,7 @@ export class SQLiteJobRepository {
     // One-time flag so setup work is not repeated.
     private initialized = false;
 
-    constructor(databasePath: string = resolve(process.cwd(), "data", "talentsync.db")) {
+    constructor(databasePath: string = resolveDatabasePath()) {
         // Ensure ./data exists before opening SQLite file.
         mkdirSync(dirname(databasePath), { recursive: true });
         this.db = new DatabaseSync(databasePath);

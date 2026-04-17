@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsx watch src/app.ts",
     "build": "tsc",
-    "start": "node --env-file=.env dist/app.js",
+    "start": "node dist/app.js",
     "start:prod": "node dist/app.js",
     "test": "vitest",
     "ui:install": "npm --prefix ui install",
