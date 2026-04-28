@@ -24,45 +24,60 @@ export default function LoginScreen({ onLogin }) {
   return (
     <main className="loginShell">
       <section className="loginCard">
-        <p className="kicker">TalentSync</p>
-        <h1>Sign In</h1>
-        <p className="subtitle">
-          Use a simple backend login so the recruiter and candidate sides stay separate.
-        </p>
+        <div className="loginHero">
+          <div className="loginHeroInner">
+            <div className="loginBrand">
+              <span className="loginBrandMark">TS</span>
+              <span className="loginBrandName">TalentSync</span>
+            </div>
+            <h2 className="loginHeroHeadline">Hire smarter,<br />match faster.</h2>
+            <ul className="loginHeroFeatures">
+              <li>AI-powered job-candidate matching</li>
+              <li>Resume parsing &amp; profile extraction</li>
+              <li>End-to-end application tracking</li>
+            </ul>
+          </div>
+        </div>
 
-        <p className={WorkspaceStatus.getClassName(loginMessage)}>{loginMessage}</p>
+        <div className="loginFormPane">
+          <p className="kicker">Welcome back</p>
+          <h1 className="loginFormTitle">Sign in</h1>
+          <p className="subtitle">Access the recruiter or candidate workspace.</p>
 
-        <form className="loginForm" onSubmit={submitLogin}>
-          <label>
-            Email
-            <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="admin@talentsync.demo" />
-          </label>
-          <label>
-            Password
-            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter demo password" />
-          </label>
-          <button type="submit" disabled={isLoginPending}>Sign In</button>
-        </form>
+          <p className={WorkspaceStatus.getClassName(loginMessage)}>{loginMessage}</p>
 
-        <div className="loginGrid">
-          <button className="loginOption" onClick={() => {
-            setEmail("admin@talentsync.demo");
-            setPassword("TalentSyncRecruiter2026!");
-          }}>
-            <span className="loginRole">Recruiter Account</span>
-            <strong>Recruiter Workspace</strong>
-            <span>admin@talentsync.demo</span>
-            <span>Password: TalentSyncRecruiter2026!</span>
-          </button>
-          <button className="loginOption" onClick={() => {
-            setEmail("candidate@talentsync.demo");
-            setPassword("TalentSyncCandidate2026!");
-          }}>
-            <span className="loginRole">Candidate Account</span>
-            <strong>Candidate Workspace</strong>
-            <span>candidate@talentsync.demo</span>
-            <span>Password: TalentSyncCandidate2026!</span>
-          </button>
+          <form className="loginForm" onSubmit={submitLogin}>
+            <label>
+              Email
+              <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="admin@talentsync.demo" />
+            </label>
+            <label>
+              Password
+              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter demo password" />
+            </label>
+            <button type="submit" disabled={isLoginPending}>Sign In</button>
+          </form>
+
+          <p className="loginDivider">Quick access</p>
+
+          <div className="loginGrid">
+            <button className="loginOption" onClick={() => {
+              setEmail("admin@talentsync.demo");
+              setPassword("TalentSyncRecruiter2026!");
+            }}>
+              <span className="loginRole">Recruiter</span>
+              <strong>Recruiter Workspace</strong>
+              <span>admin@talentsync.demo</span>
+            </button>
+            <button className="loginOption" onClick={() => {
+              setEmail("candidate@talentsync.demo");
+              setPassword("TalentSyncCandidate2026!");
+            }}>
+              <span className="loginRole">Candidate</span>
+              <strong>Candidate Workspace</strong>
+              <span>candidate@talentsync.demo</span>
+            </button>
+          </div>
         </div>
       </section>
     </main>

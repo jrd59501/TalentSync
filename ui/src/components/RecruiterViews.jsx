@@ -295,7 +295,7 @@ export function RecruiterMatchView(props) {
                   <h3>{index + 1}. {match.jobTitle}</h3>
                   <p>Job #{match.jobId}</p>
                 </div>
-                <div className="scorePill">{match.score}</div>
+                <div className={WorkspaceFormatter.scoreClass(match.score)}>{match.score}</div>
               </div>
               <p className="metricRow">
                 <span>Skill: {match.skillScore}</span>
@@ -342,7 +342,7 @@ export function RecruiterApplicationsView(props) {
                   <h3>{application.jobTitle}</h3>
                   <p>#{application.id} · {application.applicantName}</p>
                 </div>
-                <div className="scorePill">{application.status}</div>
+                <div className={WorkspaceFormatter.statusClass(application.status)}>{application.status}</div>
               </div>
               <p className="metaRow">{application.applicantEmail} · Submitted {WorkspaceFormatter.formatDate(application.submittedAt)}</p>
               {application.note && <p className="reasonText">{application.note}</p>}

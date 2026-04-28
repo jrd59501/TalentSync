@@ -225,6 +225,22 @@ export class WorkspaceFormatter {
   static formatDate(value) {
     return new Date(value).toLocaleDateString();
   }
+
+  static scoreClass(score) {
+    if (typeof score !== "number") return "scorePill";
+    if (score >= 70) return "scorePill high";
+    if (score >= 40) return "scorePill mid";
+    return "scorePill low";
+  }
+
+  static statusClass(status) {
+    switch (String(status || "").toLowerCase()) {
+      case "accepted": return "scorePill accepted";
+      case "rejected": return "scorePill rejected";
+      case "reviewing": return "scorePill reviewing";
+      default: return "scorePill";
+    }
+  }
 }
 
 // OOP: Base rule for status messages.
