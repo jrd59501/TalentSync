@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -25,15 +26,18 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_41EC6726B06E473BA373234BBD8466B4 }}
-          password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_CACD3DBBD0FB420EB2DE46AFB089DD01 }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase the repo name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> "${GITHUB_ENV}"
 
       - name: Build and push container image to registry
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_41EC6726B06E473BA373234BBD8466B4 }}/talentsync:${{ github.sha }}
+          tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
           file: ./Dockerfile
 
   deploy:
@@ -45,6 +49,9 @@ jobs:
     needs: build
 
     steps:
+      - name: Lowercase the repo name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> "${GITHUB_ENV}"
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -58,4 +65,4 @@ jobs:
         with:
           app-name: 'talentsync'
           slot-name: 'Production'
-          images: 'ghcr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_41EC6726B06E473BA373234BBD8466B4 }}/talentsync:${{ github.sha }}'
+          images: 'ghcr.io/${{ env.REPO }}:${{ github.sha }}'
