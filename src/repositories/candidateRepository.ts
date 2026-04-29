@@ -177,6 +177,15 @@ export class SQLiteCandidateRepository {
         return this.mapStoredCandidateRow(row);
     }
 
+    getCandidateByEmail(email: string): StoredCandidate | null {
+        this.ensureInitialized();
+        const row = this.db.prepare(`
+            SELECT id, full_name, email, selected_skills, experience_summary, resume_text, strengths_text, created_at
+            FROM candidates WHERE LOWER(email) = LOWER(?) LIMIT 1
+        `).get(email.trim()) as StoredCandidateRow | undefined;
+        return row ? this.mapStoredCandidateRow(row) : null;
+    }
+
     deleteCandidateById(candidateId: number): boolean {
         this.ensureInitialized();
         const result = this.db.prepare("DELETE FROM candidates WHERE id = ?").run(candidateId) as { changes?: number };

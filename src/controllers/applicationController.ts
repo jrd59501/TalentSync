@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import { applicationsRepository, ApplicationStatus } from "../repositories/applicationRepository.js";
+import { candidatesRepository } from "../repositories/candidateRepository.js";
+import { findMatches } from "../services/matchingService.js";
+import { normalizeSkills } from "../utils/validation.js";
 import { parsePositiveIntegerId } from "../utils/http.js";
 import { isValidOptionalEmail } from "../utils/validation.js";
 import { DemoSession } from "../middleware/security.js";
@@ -74,6 +77,42 @@ export const createApplication = (req: Request, res: Response) => {
             error: error instanceof Error ? error.message : "Failed to save application"
         });
     }
+};
+
+export const getApplicationMatch = async (req: Request, res: Response) => {
+    const applicationId = parsePositiveIntegerId(req.params.id);
+    if (applicationId === null) {
+        return res.status(400).json({ error: "id must be a positive integer" });
+    }
+
+    const application = applicationsRepository.getApplicationById(applicationId);
+    if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+    }
+
+    const candidate = candidatesRepository.getCandidateByEmail(application.applicantEmail);
+    if (!candidate || candidate.selectedSkills.length === 0) {
+        return res.json({ match: null, message: "Candidate profile not found in system" });
+    }
+
+    const normalizedSkills = normalizeSkills(candidate.selectedSkills);
+    const allMatches = await findMatches(normalizedSkills, candidate.experienceSummary);
+    const jobMatch = allMatches.find(m => m.jobId === application.jobId);
+
+    if (!jobMatch) {
+        return res.json({ match: null, message: "Job not found in matching results" });
+    }
+
+    return res.json({
+        match: {
+            score: jobMatch.score,
+            skillScore: jobMatch.skillScore,
+            experienceScore: jobMatch.experienceScore,
+            matchedSkills: jobMatch.matchedSkills
+        },
+        candidateName: candidate.fullName,
+        candidateSkills: candidate.selectedSkills
+    });
 };
 
 export const updateApplicationStatus = (req: Request, res: Response) => {

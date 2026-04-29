@@ -159,6 +159,15 @@ export class SQLiteApplicationRepository {
         return rows.map(row => this.mapStoredApplicationRow(row));
     }
 
+    getApplicationById(applicationId: number): StoredApplication | null {
+        this.ensureInitialized();
+        const row = this.db.prepare(`
+            SELECT id, job_id, job_title, applicant_name, applicant_email, note, status, submitted_at
+            FROM applications WHERE id = ?
+        `).get(applicationId) as StoredApplicationRow | undefined;
+        return row ? this.mapStoredApplicationRow(row) : null;
+    }
+
     updateApplicationStatus(applicationId: number, status: ApplicationStatus): StoredApplication | null {
         this.ensureInitialized();
         const row = this.db.prepare(`

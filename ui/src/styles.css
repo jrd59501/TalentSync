@@ -830,6 +830,41 @@ button:disabled {
   line-height: 1.5;
 }
 
+/* ===== MATCH BREAKDOWN (application card expansion) ===== */
+
+.matchBreakdown {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-md);
+  background: var(--info-bg);
+}
+
+.matchBreakdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.matchBreakdownMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.matchBreakdownMeta strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.matchBreakdownEmpty {
+  margin: 0;
+  font-size: 0.87rem;
+  color: var(--text-muted);
+}
+
 /* ===== APPLY PANEL ===== */
 
 .applyPanel {

@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { SectionIntro } from "./WorkspaceChrome.jsx";
 import { WorkspaceFormatter, WorkspaceStatus } from "../lib/workspaceConfig.js";
+import { WorkspaceApi } from "../lib/workspaceApi.js";
 import PropTypes from "../lib/propTypes.js";
 
 export function RecruiterJobsView(props) {
@@ -321,6 +323,22 @@ export function RecruiterApplicationsView(props) {
     changeApplicationStatus
   } = props;
 
+  const [matchData, setMatchData] = useState({});
+
+  const fetchMatch = async (applicationId) => {
+    if (matchData[applicationId]?.loaded) {
+      setMatchData(prev => ({ ...prev, [applicationId]: { ...prev[applicationId], open: !prev[applicationId].open } }));
+      return;
+    }
+    setMatchData(prev => ({ ...prev, [applicationId]: { loading: true, open: true } }));
+    try {
+      const result = await WorkspaceApi.getApplicationMatch(applicationId);
+      setMatchData(prev => ({ ...prev, [applicationId]: { loaded: true, open: true, ...result } }));
+    } catch (err) {
+      setMatchData(prev => ({ ...prev, [applicationId]: { loaded: true, open: true, error: String(err) } }));
+    }
+  };
+
   return (
     <section className="contentGrid" aria-label="Recruiter applications section">
       <article className="panel">
@@ -332,27 +350,62 @@ export function RecruiterApplicationsView(props) {
       </article>
 
       <article className="panel">
-        <SectionIntro title="Submitted Applications" text="This connects the candidate apply flow to a simple recruiter review queue." />
+        <SectionIntro title="Submitted Applications" text="Click View Match on any application to see how well the candidate fits the job." />
         <div className="listStack">
           {submittedApplications.length === 0 && <p className="emptyText">No applications yet. Candidate submissions will appear here.</p>}
-          {submittedApplications.map((application) => (
-            <section key={application.id} className="listCard">
-              <div className="listCardHead">
-                <div>
-                  <h3>{application.jobTitle}</h3>
-                  <p>#{application.id} · {application.applicantName}</p>
+          {submittedApplications.map((application) => {
+            const md = matchData[application.id];
+            return (
+              <section key={application.id} className="listCard">
+                <div className="listCardHead">
+                  <div>
+                    <h3>{application.jobTitle}</h3>
+                    <p>#{application.id} · {application.applicantName}</p>
+                  </div>
+                  <div className={WorkspaceFormatter.statusClass(application.status)}>{application.status}</div>
                 </div>
-                <div className={WorkspaceFormatter.statusClass(application.status)}>{application.status}</div>
-              </div>
-              <p className="metaRow">{application.applicantEmail} · Submitted {WorkspaceFormatter.formatDate(application.submittedAt)}</p>
-              {application.note && <p className="reasonText">{application.note}</p>}
-              <div className="buttonRow">
-                <button className="ghost" onClick={() => changeApplicationStatus(application.id, "Reviewing")} disabled={isApplicationPending}>Reviewing</button>
-                <button className="ghost" onClick={() => changeApplicationStatus(application.id, "Accepted")} disabled={isApplicationPending}>Accept</button>
-                <button className="danger" onClick={() => changeApplicationStatus(application.id, "Rejected")} disabled={isApplicationPending}>Reject</button>
-              </div>
-            </section>
-          ))}
+                <p className="metaRow">{application.applicantEmail} · Submitted {WorkspaceFormatter.formatDate(application.submittedAt)}</p>
+                {application.note && <p className="reasonText">{application.note}</p>}
+
+                {md?.open && (
+                  <div className="matchBreakdown">
+                    {md.loading && <p className="matchBreakdownEmpty">Loading match score...</p>}
+                    {md.error && <p className="matchBreakdownEmpty">{md.error}</p>}
+                    {md.loaded && !md.match && <p className="matchBreakdownEmpty">{md.message ?? "No match data — candidate profile not in system."}</p>}
+                    {md.loaded && md.match && (
+                      <>
+                        <div className="matchBreakdownHeader">
+                          <div className={WorkspaceFormatter.scoreClass(md.match.score)}>
+                            {md.match.score}
+                          </div>
+                          <div className="matchBreakdownMeta">
+                            <span>Skill fit: <strong>{md.match.skillScore}</strong></span>
+                            <span>Experience fit: <strong>{md.match.experienceScore}</strong></span>
+                          </div>
+                        </div>
+                        {md.match.matchedSkills?.length > 0 && (
+                          <div className="chips">
+                            {md.match.matchedSkills.map(skill => (
+                              <span key={skill} className="chip">{skill}</span>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <div className="buttonRow">
+                  <button className="ghost" onClick={() => fetchMatch(application.id)}>
+                    {md?.open ? "Hide Match" : "View Match"}
+                  </button>
+                  <button className="ghost" onClick={() => changeApplicationStatus(application.id, "Reviewing")} disabled={isApplicationPending}>Reviewing</button>
+                  <button className="ghost" onClick={() => changeApplicationStatus(application.id, "Accepted")} disabled={isApplicationPending}>Accept</button>
+                  <button className="danger" onClick={() => changeApplicationStatus(application.id, "Rejected")} disabled={isApplicationPending}>Reject</button>
+                </div>
+              </section>
+            );
+          })}
         </div>
       </article>
     </section>
