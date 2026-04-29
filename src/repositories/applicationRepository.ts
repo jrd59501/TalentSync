@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { resolveDatabasePath } from "../config/storage.js";
+import { seedApplications } from "../data/seedApplications.js";
 
 export type ApplicationStatus = "Submitted" | "Reviewing" | "Accepted" | "Rejected";
 
@@ -74,6 +75,40 @@ export class SQLiteApplicationRepository {
         this.db.exec("CREATE INDEX IF NOT EXISTS idx_applications_email ON applications(applicant_email);");
         this.db.exec("CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);");
         this.db.exec("CREATE INDEX IF NOT EXISTS idx_applications_job_id ON applications(job_id);");
+
+        const upsertApplication = this.db.prepare(`
+            INSERT INTO applications (id, job_id, job_title, applicant_name, applicant_email, note, status, submitted_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                job_id = excluded.job_id,
+                job_title = excluded.job_title,
+                applicant_name = excluded.applicant_name,
+                applicant_email = excluded.applicant_email,
+                note = excluded.note,
+                status = excluded.status,
+                submitted_at = excluded.submitted_at
+        `);
+
+        this.db.exec("BEGIN");
+        try {
+            for (const app of seedApplications) {
+                upsertApplication.run(
+                    app.id,
+                    app.jobId,
+                    app.jobTitle,
+                    app.applicantName,
+                    app.applicantEmail,
+                    app.note,
+                    app.status,
+                    app.submittedAt
+                );
+            }
+            this.db.exec("COMMIT");
+        } catch (error) {
+            this.db.exec("ROLLBACK");
+            throw error;
+        }
+
         this.initialized = true;
     }
 

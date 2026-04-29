@@ -660,6 +660,24 @@ button:disabled {
   display: grid;
   gap: 10px;
   margin-top: 12px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.listStack::-webkit-scrollbar {
+  width: 6px;
+}
+
+.listStack::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.listStack::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
 }
 
 .listCard {
