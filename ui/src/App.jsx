@@ -3,7 +3,7 @@ import LoginScreen from "./components/LoginScreen.jsx";
 import { CandidateApplicationsView, CandidateOpportunitiesView, CandidateProfileView } from "./components/CandidateViews.jsx";
 import { RecruiterApplicationsView, RecruiterCandidatesView, RecruiterJobsView, RecruiterMatchView } from "./components/RecruiterViews.jsx";
 import { SectionTabs, WorkflowStrip, WorkspaceHeader } from "./components/WorkspaceChrome.jsx";
-import { DEMO_USERS, SECTION_DEFINITIONS, WorkspaceFormatter } from "./lib/workspaceConfig.js";
+import { DEMO_CANDIDATE_RESUME, DEMO_CANDIDATE_SKILLS, DEMO_CANDIDATE_SUMMARY, DEMO_USERS, SECTION_DEFINITIONS, WorkspaceFormatter } from "./lib/workspaceConfig.js";
 import { WorkspaceApi } from "./lib/workspaceApi.js";
 
 export default function App() {
@@ -76,6 +76,9 @@ export default function App() {
     if (session.role === "candidate") {
       setCandidateNameInput(nextUser.name);
       setCandidateEmailInput(nextUser.email);
+      setCandidateResumeInput(DEMO_CANDIDATE_RESUME);
+      setCandidateSkillsInput(DEMO_CANDIDATE_SKILLS);
+      setCandidateSummaryInput(DEMO_CANDIDATE_SUMMARY);
       setApplicationNameInput(nextUser.name);
       setApplicationEmailInput(nextUser.email);
     }
