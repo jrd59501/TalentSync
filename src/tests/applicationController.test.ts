@@ -6,6 +6,7 @@ import {
     updateApplicationStatus
 } from "../controllers/applicationController.js";
 import { applicationsRepository } from "../repositories/applicationRepository.js";
+import { candidatesRepository } from "../repositories/candidateRepository.js";
 
 vi.mock("../repositories/applicationRepository.js", () => ({
     applicationsRepository: {
@@ -15,8 +16,16 @@ vi.mock("../repositories/applicationRepository.js", () => ({
     }
 }));
 
+vi.mock("../repositories/candidateRepository.js", () => ({
+    candidatesRepository: {
+        getCandidateByEmail: vi.fn(),
+        upsertCandidateByEmail: vi.fn()
+    }
+}));
+
 const createMockResponse = () => {
     const res: Partial<Response> = {};
+    res.locals = {};
     res.status = vi.fn().mockReturnValue(res);
     res.json = vi.fn().mockReturnValue(res);
     res.send = vi.fn().mockReturnValue(res);
@@ -68,6 +77,61 @@ describe("applicationController", () => {
         createApplication(req, res);
 
         expect(res.status).toHaveBeenCalledWith(201);
+    });
+
+    it("saves the candidate profile from an application when provided", () => {
+        vi.mocked(candidatesRepository.upsertCandidateByEmail).mockReturnValue({
+            id: 9,
+            fullName: "Jordan Candidate",
+            email: "candidate@talentsync.demo",
+            selectedSkills: ["node", "typescript"],
+            experienceSummary: "Backend developer.",
+            resumeText: "Resume text",
+            strengthsText: null,
+            createdAt: "2026-03-18 10:00:00"
+        });
+        vi.mocked(applicationsRepository.addApplication).mockReturnValue({
+            id: 1,
+            jobId: 2,
+            jobTitle: "Backend Engineer",
+            applicantName: "Jordan Candidate",
+            applicantEmail: "candidate@talentsync.demo",
+            note: "Interested in the role.",
+            status: "Submitted",
+            submittedAt: "2026-03-18 10:00:00"
+        });
+
+        const req = {
+            body: {
+                jobId: 2,
+                jobTitle: "Backend Engineer",
+                applicantName: "Jordan Candidate",
+                applicantEmail: "candidate@talentsync.demo",
+                note: "Interested in the role.",
+                candidateProfile: {
+                    selectedSkills: ["Node", "TypeScript"],
+                    experienceSummary: "Backend developer.",
+                    resumeText: "Resume text",
+                    strengthsText: null
+                }
+            }
+        } as Request;
+        const res = createMockResponse();
+
+        createApplication(req, res);
+
+        expect(candidatesRepository.upsertCandidateByEmail).toHaveBeenCalledWith({
+            fullName: "Jordan Candidate",
+            email: "candidate@talentsync.demo",
+            selectedSkills: ["node", "typescript"],
+            experienceSummary: "Backend developer.",
+            resumeText: "Resume text",
+            strengthsText: null
+        });
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            candidateId: 9
+        }));
     });
 
     it("rejects invalid application email", () => {

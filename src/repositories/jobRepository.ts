@@ -33,6 +33,8 @@ type StoredJobRow = {
 };
 
 export class SQLiteJobRepository {
+    // This repository keeps SQL details in one place so controllers and services
+    // can talk in app terms like "jobs" instead of raw database commands.
     // Low-level sqlite connection object.
     private readonly db: DatabaseSync;
     // One-time flag so setup work is not repeated.
@@ -58,6 +60,8 @@ export class SQLiteJobRepository {
     }
 
     ensureInitialized(): void {
+        // Think of this as startup safety:
+        // create the table, apply simple migrations, then seed demo data.
         // Skip if already initialized in this process.
         if (this.initialized) {
             return;
@@ -143,6 +147,7 @@ export class SQLiteJobRepository {
 
     addJob(input: CreateStoredJobInput): StoredJob {
         this.ensureInitialized();
+        // Repositories also do a last cleanup pass before writing to storage.
         // Basic cleanup so we avoid empty strings and duplicates.
         const title = input.title.trim();
         const requiredSkills = [...new Set(input.requiredSkills.map(skill => skill.trim()).filter(Boolean))];

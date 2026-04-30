@@ -8,11 +8,62 @@ import { isValidOptionalEmail } from "../utils/validation.js";
 import { DemoSession } from "../middleware/security.js";
 import {
     isOptionalNullableString,
+    isOptionalNullableStringWithin,
     isOptionalStringWithin,
-    isRequiredString
+    isRequiredString,
+    isStringArray
 } from "../utils/requestValidation.js";
 
 const VALID_STATUSES = new Set<ApplicationStatus>(["Submitted", "Reviewing", "Accepted", "Rejected"]);
+
+type ApplicationCandidateProfile = {
+    selectedSkills: string[];
+    experienceSummary: string;
+    resumeText: string | null;
+    strengthsText: string | null;
+};
+
+const parseApplicationCandidateProfile = (candidateProfile: unknown): {
+    profile?: ApplicationCandidateProfile;
+    error?: string;
+} => {
+    // Applications may include a profile snapshot so recruiters can review it later.
+    // This parser keeps that optional profile safe before it reaches the database.
+    if (candidateProfile === undefined || candidateProfile === null) {
+        return {};
+    }
+    if (typeof candidateProfile !== "object" || Array.isArray(candidateProfile)) {
+        return { error: "candidateProfile must be an object if provided" };
+    }
+
+    const profile = candidateProfile as Record<string, unknown>;
+    if (!isStringArray(profile.selectedSkills)) {
+        return { error: "candidateProfile.selectedSkills must be an array of strings" };
+    }
+    if (!isOptionalStringWithin(profile.experienceSummary, 2000)) {
+        return { error: "candidateProfile.experienceSummary must be 2000 characters or fewer" };
+    }
+    if (!isOptionalNullableStringWithin(profile.resumeText, 30000)) {
+        return { error: "candidateProfile.resumeText must be 30000 characters or fewer" };
+    }
+    if (!isOptionalNullableStringWithin(profile.strengthsText, 10000)) {
+        return { error: "candidateProfile.strengthsText must be 10000 characters or fewer" };
+    }
+
+    const selectedSkills = normalizeSkills(profile.selectedSkills);
+    if (selectedSkills.length === 0 || selectedSkills.length > 30) {
+        return { error: "candidateProfile.selectedSkills must contain between 1 and 30 valid skills" };
+    }
+
+    return {
+        profile: {
+            selectedSkills,
+            experienceSummary: typeof profile.experienceSummary === "string" ? profile.experienceSummary : "",
+            resumeText: typeof profile.resumeText === "string" ? profile.resumeText : null,
+            strengthsText: typeof profile.strengthsText === "string" ? profile.strengthsText : null
+        }
+    };
+};
 
 export const listApplications = (req: Request, res: Response) => {
     const currentUser = res.locals.currentUser as DemoSession | undefined;
@@ -36,7 +87,7 @@ export const listApplications = (req: Request, res: Response) => {
 
 export const createApplication = (req: Request, res: Response) => {
     const currentUser = res.locals.currentUser as DemoSession | undefined;
-    const { jobId, jobTitle, applicantName, applicantEmail, note } = req.body ?? {};
+    const { jobId, jobTitle, applicantName, applicantEmail, note, candidateProfile } = req.body ?? {};
 
     // Validate first so repository code can assume the payload is already safe and complete.
     if (!Number.isInteger(jobId) || jobId < 1) {
@@ -62,7 +113,25 @@ export const createApplication = (req: Request, res: Response) => {
         return res.status(400).json({ error: "note must be 2000 characters or fewer" });
     }
 
+    const parsedCandidateProfile = parseApplicationCandidateProfile(candidateProfile);
+    if (parsedCandidateProfile.error) {
+        return res.status(400).json({ error: parsedCandidateProfile.error });
+    }
+
     try {
+        // When a candidate applies, save their current profile under their email.
+        // That is what lets the recruiter open the application and see the profile.
+        const savedCandidate = parsedCandidateProfile.profile
+            ? candidatesRepository.upsertCandidateByEmail({
+                fullName: applicantName,
+                email: applicantEmail,
+                selectedSkills: parsedCandidateProfile.profile.selectedSkills,
+                experienceSummary: parsedCandidateProfile.profile.experienceSummary,
+                resumeText: parsedCandidateProfile.profile.resumeText,
+                strengthsText: parsedCandidateProfile.profile.strengthsText
+            })
+            : null;
+
         const application = applicationsRepository.addApplication({
             jobId,
             jobTitle,
@@ -71,7 +140,10 @@ export const createApplication = (req: Request, res: Response) => {
             note: typeof note === "string" ? note : null
         });
 
-        return res.status(201).json(application);
+        return res.status(201).json({
+            ...application,
+            candidateId: savedCandidate?.id ?? null
+        });
     } catch (error) {
         return res.status(400).json({
             error: error instanceof Error ? error.message : "Failed to save application"
@@ -90,11 +162,13 @@ export const getApplicationMatch = async (req: Request, res: Response) => {
         return res.status(404).json({ error: "Application not found" });
     }
 
+    // Recruiter review starts from the application, then finds the candidate profile by email.
     const candidate = candidatesRepository.getCandidateByEmail(application.applicantEmail);
     if (!candidate || candidate.selectedSkills.length === 0) {
         return res.json({ match: null, message: "Candidate profile not found in system" });
     }
 
+    // Run the same matching logic used elsewhere, then return only the score for this job.
     const normalizedSkills = normalizeSkills(candidate.selectedSkills);
     const allMatches = await findMatches(normalizedSkills, candidate.experienceSummary);
     const jobMatch = allMatches.find(m => m.jobId === application.jobId);
@@ -111,7 +185,8 @@ export const getApplicationMatch = async (req: Request, res: Response) => {
             matchedSkills: jobMatch.matchedSkills
         },
         candidateName: candidate.fullName,
-        candidateSkills: candidate.selectedSkills
+        candidateSkills: candidate.selectedSkills,
+        candidateSummary: candidate.experienceSummary
     });
 };
 

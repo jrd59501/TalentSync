@@ -326,6 +326,7 @@ export function RecruiterApplicationsView(props) {
   const [matchData, setMatchData] = useState({});
 
   const fetchMatch = async (applicationId) => {
+    // View Match loads the saved profile and fit score for one application.
     if (matchData[applicationId]?.loaded) {
       setMatchData(prev => ({ ...prev, [applicationId]: { ...prev[applicationId], open: !prev[applicationId].open } }));
       return;
@@ -374,6 +375,20 @@ export function RecruiterApplicationsView(props) {
                     {md.loaded && !md.match && <p className="matchBreakdownEmpty">{md.message ?? "No match data — candidate profile not in system."}</p>}
                     {md.loaded && md.match && (
                       <>
+                        {/* Recruiters see the profile first, then the score for the selected job. */}
+                        {md.candidateName && (
+                          <p className="metaRow">Candidate profile: {md.candidateName}</p>
+                        )}
+                        {md.candidateSummary && (
+                          <p className="reasonText">{md.candidateSummary}</p>
+                        )}
+                        {md.candidateSkills?.length > 0 && (
+                          <div className="chips">
+                            {md.candidateSkills.map(skill => (
+                              <span key={`candidate-${application.id}-${skill}`} className="chip">{skill}</span>
+                            ))}
+                          </div>
+                        )}
                         <div className="matchBreakdownHeader">
                           <div className={WorkspaceFormatter.scoreClass(md.match.score)}>
                             {md.match.score}

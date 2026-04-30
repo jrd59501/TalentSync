@@ -121,6 +121,8 @@ export class JobIngestionService {
     }
 
     async previewFromText(rawText: string, categoryHint?: string | null): Promise<JobPreviewResult> {
+        // Preview mode is useful in demos because we can show extracted fields
+        // before committing anything to the database.
         // Try AI extraction first.
         const aiProfile = await this.extractor.extract(rawText);
         // If AI unavailable/fails, fallback to deterministic heuristic parse.
@@ -143,6 +145,8 @@ export class JobIngestionService {
     }
 
     private heuristicExtract(rawText: string): ExtractedJobProfile {
+        // This fallback keeps the project working even if AI is turned off.
+        // It uses simple text rules so the logic is easy to explain in class.
         // Normalize line endings first.
         const normalizedText = rawText.replace(/\r/g, "");
         // Match known required skills mentioned in raw text.
@@ -240,6 +244,8 @@ export class JobIngestionService {
     }
 
     private inferCategory(rawText: string, requiredSkills: string[], meaningKeywords: string[]): string | null {
+        // Simple rule-based category guess:
+        // count which category vocabulary appears most often.
         const corpus = `${rawText} ${requiredSkills.join(" ")} ${meaningKeywords.join(" ")}`.toLowerCase();
         let bestCategory: string | null = null;
         let bestScore = 0;

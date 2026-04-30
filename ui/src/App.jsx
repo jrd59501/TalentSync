@@ -8,6 +8,9 @@ import { WorkspaceApi } from "./lib/workspaceApi.js";
 
 export default function App() {
   const runtimeWindow = globalThis.window;
+  // Presentation note:
+  // App acts like the coordinator for the demo. It holds shared state here,
+  // then passes data and actions down into smaller UI sections.
   // Top-level state lives here so the recruiter and candidate views stay mostly presentational.
   const [authToken, setAuthToken] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
@@ -74,6 +77,8 @@ export default function App() {
     setActiveView(session.role === "admin" ? "jobs" : "profile");
 
     if (session.role === "candidate") {
+      // For class demos, candidate login also preloads sample data
+      // so the matching and application flows are ready right away.
       setCandidateNameInput(nextUser.name);
       setCandidateEmailInput(nextUser.email);
       setCandidateResumeInput(DEMO_CANDIDATE_RESUME);
@@ -149,6 +154,7 @@ export default function App() {
       return;
     }
 
+    // This gives the recruiter a review step before anything is saved.
     setJobStatusMessage("Building job draft...");
     setIsJobRequestPending(true);
     try {
@@ -266,6 +272,7 @@ export default function App() {
       return;
     }
 
+    // Same pattern as jobs: preview first, then let the user confirm before save.
     setCandidateStatusMessage("Building candidate draft...");
     setIsCandidateRequestPending(true);
     try {
@@ -341,6 +348,7 @@ export default function App() {
 
   // Matching always uses the currently edited candidate profile as input.
   const runMatchForCurrentProfile = async (nextView) => {
+    // That makes the demo feel interactive because edits can change results immediately.
     const selectedSkills = WorkspaceFormatter.parseSkillList(candidateSkillsInput);
 
     if (selectedSkills.length === 0) {
@@ -434,17 +442,30 @@ export default function App() {
     setIsApplicationPending(true);
     setApplicationStatusMessage(`Submitting application for "${applicationTargetJob.title}"...`);
     try {
+      // Send the application and the current profile together.
+      // This makes recruiter review work even if the candidate did not click Save Profile first.
+      const selectedSkills = WorkspaceFormatter.parseSkillList(candidateSkillsInput);
       const nextApplication = await WorkspaceApi.createApplication({
         jobId: applicationTargetJob.id,
         jobTitle: applicationTargetJob.title,
         applicantName: applicationNameInput,
         applicantEmail: applicationEmailInput,
-        note: applicationNoteInput
+        note: applicationNoteInput,
+        candidateProfile: selectedSkills.length > 0
+          ? {
+              selectedSkills,
+              experienceSummary: candidateSummaryInput,
+              resumeText: candidateResumeInput || null,
+              strengthsText: candidateStrengthsInput || null
+            }
+          : null
       });
 
       await loadApplications(applicationEmailInput);
       setApplicationStatusMessage(`Application submitted to ${applicationTargetJob.title}. Reference: ${nextApplication.id}.`);
       setApplicationNoteInput("");
+    } catch (error) {
+      setApplicationStatusMessage(`Application submit failed. ${String(error)}`);
     } finally {
       setIsApplicationPending(false);
     }
@@ -466,6 +487,7 @@ export default function App() {
   };
 
   useEffect(() => {
+    // Initial page load for shared demo data.
     // Initial load for shared data used by both sides of the app.
     void loadJobs();
     void loadJobCategories();

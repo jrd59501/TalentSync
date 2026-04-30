@@ -175,6 +175,11 @@ export class JobMatchingService {
     ) {}
 
     async findMatches(candidateSelectedSkills: string[], candidateExperienceSummary: string): Promise<JobMatchResult[]> {
+        // Presentation summary:
+        // 1. Clean the candidate input
+        // 2. Score every job with deterministic rules
+        // 3. Optionally ask AI to rerank the best few
+        // 4. Return a final sorted list
         // Build normalized sets from candidate input one time.
         const normalizedSelectedSkills = new Set(candidateSelectedSkills.map(skill => this.tokenService.normalize(skill)));
         const selectedSkillTokenSet = new Set(this.tokenService.tokenize(candidateSelectedSkills.join(" ")));
@@ -270,6 +275,8 @@ export class JobMatchingService {
         selectedSkillTokenSet: Set<string>,
         candidateContextTokens: Set<string>
     ): BaseMatchResult {
+        // This is the explainable scoring step:
+        // we compare the candidate against one job before any AI is involved.
         // A required skill matches by exact value or token overlap.
         const matchedSkills = preparedJob.requiredSkillTokens
             .filter(skillEntry => {
