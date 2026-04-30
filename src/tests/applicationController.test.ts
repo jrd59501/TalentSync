@@ -2,15 +2,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Request, Response } from "express";
 import {
     createApplication,
+    getApplicationMatch,
     listApplications,
     updateApplicationStatus
 } from "../controllers/applicationController.js";
 import { applicationsRepository } from "../repositories/applicationRepository.js";
 import { candidatesRepository } from "../repositories/candidateRepository.js";
+import { findMatches } from "../services/matchingService.js";
 
 vi.mock("../repositories/applicationRepository.js", () => ({
     applicationsRepository: {
         getApplications: vi.fn(),
+        getApplicationById: vi.fn(),
         addApplication: vi.fn(),
         updateApplicationStatus: vi.fn()
     }
@@ -21,6 +24,10 @@ vi.mock("../repositories/candidateRepository.js", () => ({
         getCandidateByEmail: vi.fn(),
         upsertCandidateByEmail: vi.fn()
     }
+}));
+
+vi.mock("../services/matchingService.js", () => ({
+    findMatches: vi.fn()
 }));
 
 const createMockResponse = () => {
@@ -59,6 +66,10 @@ describe("applicationController", () => {
             applicantName: "Jordan Candidate",
             applicantEmail: "candidate@talentsync.demo",
             note: "Interested in the role.",
+            candidateSkills: [],
+            candidateSummary: "",
+            candidateResumeText: null,
+            candidateStrengthsText: null,
             status: "Submitted",
             submittedAt: "2026-03-18 10:00:00"
         });
@@ -97,6 +108,10 @@ describe("applicationController", () => {
             applicantName: "Jordan Candidate",
             applicantEmail: "candidate@talentsync.demo",
             note: "Interested in the role.",
+            candidateSkills: [],
+            candidateSummary: "",
+            candidateResumeText: null,
+            candidateStrengthsText: null,
             status: "Submitted",
             submittedAt: "2026-03-18 10:00:00"
         });
@@ -134,6 +149,55 @@ describe("applicationController", () => {
         }));
     });
 
+    it("returns recruiter match data from the application profile snapshot", async () => {
+        vi.mocked(applicationsRepository.getApplicationById).mockReturnValue({
+            id: 1,
+            jobId: 2,
+            jobTitle: "Backend Engineer",
+            applicantName: "Jordan Candidate",
+            applicantEmail: "candidate@talentsync.demo",
+            note: "Interested in the role.",
+            candidateSkills: ["node", "typescript"],
+            candidateSummary: "Built backend services.",
+            candidateResumeText: null,
+            candidateStrengthsText: null,
+            status: "Submitted",
+            submittedAt: "2026-03-18 10:00:00"
+        });
+        vi.mocked(candidatesRepository.getCandidateByEmail).mockReturnValue(null);
+        vi.mocked(findMatches).mockResolvedValue([
+            {
+                jobId: 2,
+                jobTitle: "Backend Engineer",
+                score: 85,
+                skillScore: 90,
+                experienceScore: 80,
+                aiScore: null,
+                aiReason: null,
+                matchedSkills: ["node"],
+                matchedKeywords: ["backend"]
+            }
+        ]);
+
+        const req = { params: { id: "1" } } as unknown as Request;
+        const res = createMockResponse();
+
+        await getApplicationMatch(req, res);
+
+        expect(findMatches).toHaveBeenCalledWith(["node", "typescript"], "Built backend services.");
+        expect(res.json).toHaveBeenCalledWith({
+            match: {
+                score: 85,
+                skillScore: 90,
+                experienceScore: 80,
+                matchedSkills: ["node"]
+            },
+            candidateName: "Jordan Candidate",
+            candidateSkills: ["node", "typescript"],
+            candidateSummary: "Built backend services."
+        });
+    });
+
     it("rejects invalid application email", () => {
         const req = {
             body: {
@@ -161,6 +225,10 @@ describe("applicationController", () => {
             applicantName: "Jordan Candidate",
             applicantEmail: "candidate@talentsync.demo",
             note: "Interested in the role.",
+            candidateSkills: [],
+            candidateSummary: "",
+            candidateResumeText: null,
+            candidateStrengthsText: null,
             status: "Reviewing",
             submittedAt: "2026-03-18 10:00:00"
         });

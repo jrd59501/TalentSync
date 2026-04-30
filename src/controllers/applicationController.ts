@@ -23,6 +23,12 @@ type ApplicationCandidateProfile = {
     strengthsText: string | null;
 };
 
+type ReviewCandidateProfile = {
+    fullName: string;
+    selectedSkills: string[];
+    experienceSummary: string;
+};
+
 const parseApplicationCandidateProfile = (candidateProfile: unknown): {
     profile?: ApplicationCandidateProfile;
     error?: string;
@@ -137,7 +143,11 @@ export const createApplication = (req: Request, res: Response) => {
             jobTitle,
             applicantName,
             applicantEmail,
-            note: typeof note === "string" ? note : null
+            note: typeof note === "string" ? note : null,
+            candidateSkills: parsedCandidateProfile.profile?.selectedSkills,
+            candidateSummary: parsedCandidateProfile.profile?.experienceSummary,
+            candidateResumeText: parsedCandidateProfile.profile?.resumeText,
+            candidateStrengthsText: parsedCandidateProfile.profile?.strengthsText
         });
 
         return res.status(201).json({
@@ -162,15 +172,36 @@ export const getApplicationMatch = async (req: Request, res: Response) => {
         return res.status(404).json({ error: "Application not found" });
     }
 
-    // Recruiter review starts from the application, then finds the candidate profile by email.
+    // Recruiter review starts from the application profile snapshot.
+    // If the snapshot is empty, fall back to the saved candidate profile by email.
     const candidate = candidatesRepository.getCandidateByEmail(application.applicantEmail);
-    if (!candidate || candidate.selectedSkills.length === 0) {
-        return res.json({ match: null, message: "Candidate profile not found in system" });
+    const reviewProfile: ReviewCandidateProfile | null = application.candidateSkills.length > 0
+        ? {
+            fullName: application.applicantName,
+            selectedSkills: application.candidateSkills,
+            experienceSummary: application.candidateSummary || application.note || ""
+        }
+        : candidate
+            ? {
+                fullName: candidate.fullName,
+                selectedSkills: candidate.selectedSkills,
+                experienceSummary: candidate.experienceSummary
+            }
+            : application.note
+                ? {
+                    fullName: application.applicantName,
+                    selectedSkills: [],
+                    experienceSummary: application.note
+                }
+                : null;
+
+    if (!reviewProfile) {
+        return res.json({ match: null, message: "No candidate profile or application note is available for matching." });
     }
 
     // Run the same matching logic used elsewhere, then return only the score for this job.
-    const normalizedSkills = normalizeSkills(candidate.selectedSkills);
-    const allMatches = await findMatches(normalizedSkills, candidate.experienceSummary);
+    const normalizedSkills = normalizeSkills(reviewProfile.selectedSkills);
+    const allMatches = await findMatches(normalizedSkills, reviewProfile.experienceSummary);
     const jobMatch = allMatches.find(m => m.jobId === application.jobId);
 
     if (!jobMatch) {
@@ -184,9 +215,9 @@ export const getApplicationMatch = async (req: Request, res: Response) => {
             experienceScore: jobMatch.experienceScore,
             matchedSkills: jobMatch.matchedSkills
         },
-        candidateName: candidate.fullName,
-        candidateSkills: candidate.selectedSkills,
-        candidateSummary: candidate.experienceSummary
+        candidateName: reviewProfile.fullName,
+        candidateSkills: reviewProfile.selectedSkills,
+        candidateSummary: reviewProfile.experienceSummary
     });
 };
 
