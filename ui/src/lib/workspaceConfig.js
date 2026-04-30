@@ -1,3 +1,31 @@
+export const DEMO_CANDIDATE_RESUME = `Jordan Candidate
+candidate@talentsync.demo
+
+Summary
+Full-stack developer with 4 years of experience building web applications and REST APIs. Comfortable across the stack — from React frontends to Node.js backends and SQL databases.
+
+Experience
+Software Developer — Apex Digital, 2022–present
+- Built and maintained React component libraries used across 3 internal products
+- Developed Express REST APIs integrated with PostgreSQL and third-party services
+- Wrote TypeScript across the full stack; improved type coverage from 40% to 90%
+- Collaborated with design and product teams on feature delivery and code reviews
+
+Junior Developer — BrightPath Solutions, 2021–2022
+- Assisted in building customer-facing dashboards using JavaScript and CSS
+- Supported backend API work in Node.js and documented endpoints for the team
+- Participated in daily standups, sprint planning, and retrospectives
+
+Skills
+React, JavaScript, TypeScript, Node.js, Express, SQL, PostgreSQL, REST APIs, Git, CSS, HTML, communication, agile
+
+Education
+B.S. Computer Science — State University, 2021`;
+
+export const DEMO_CANDIDATE_SKILLS = "react, javascript, typescript, node, express, sql, api, css, communication";
+
+export const DEMO_CANDIDATE_SUMMARY = "Full-stack developer with 4 years of experience in React, Node.js, TypeScript, and SQL. Built REST APIs and component libraries across multiple products.";
+
 // Sample users keep the app easy to present without building full registration.
 export const DEMO_USERS = {
   admin: {
@@ -224,6 +252,22 @@ export class WorkspaceFormatter {
 
   static formatDate(value) {
     return new Date(value).toLocaleDateString();
+  }
+
+  static scoreClass(score) {
+    if (typeof score !== "number") return "scorePill";
+    if (score >= 70) return "scorePill high";
+    if (score >= 40) return "scorePill mid";
+    return "scorePill low";
+  }
+
+  static statusClass(status) {
+    switch (String(status || "").toLowerCase()) {
+      case "accepted": return "scorePill accepted";
+      case "rejected": return "scorePill rejected";
+      case "reviewing": return "scorePill reviewing";
+      default: return "scorePill";
+    }
   }
 }
 

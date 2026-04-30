@@ -1,61 +1,68 @@
-name: Build and deploy a container to Azure Web App
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
 
-env:
-  AZURE_WEBAPP_NAME: talentsync
+name: Build and deploy container app to Azure Web App - talentsync
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - jrdbranch
   workflow_dispatch:
-
-permissions:
-  contents: read
-  packages: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226
+        uses: docker/setup-buildx-action@v2
 
-      - name: Log in to GitHub container registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d
+      - name: Log in to container registry
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ github.token }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lowercase the repo name
-        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>"${GITHUB_ENV}"
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> "${GITHUB_ENV}"
 
       - name: Build and push container image to registry
-        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
+        uses: docker/build-push-action@v3
         with:
+          context: .
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
           file: ./Dockerfile
 
   deploy:
-    permissions:
-      contents: none
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
     needs: build
-    environment:
-      name: Development
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
       - name: Lowercase the repo name
-        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>"${GITHUB_ENV}"
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> "${GITHUB_ENV}"
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0073A4D3917340EDA4D3139C33E931D3 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A59EA81C4ED5493CBDD5D2948DDF7D8A }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3CE14E1B0F9845CD925B86E25129E882 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          images: ghcr.io/${{ env.REPO }}:${{ github.sha }}
+          app-name: 'talentsync'
+          slot-name: 'Production'
+          images: 'ghcr.io/${{ env.REPO }}:${{ github.sha }}'

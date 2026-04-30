@@ -1,6 +1,7 @@
 import express from "express";
 import {
     createApplication,
+    getApplicationMatch,
     listApplications,
     updateApplicationStatus
 } from "../controllers/applicationController.js";
@@ -14,6 +15,7 @@ router.get("/health", (req, res) => {
 
 router.get("/", requireAuth, listApplications);
 router.post("/", requireAuth, createApplication);
+router.get("/:id/match", requireAuth, requireRole("admin"), getApplicationMatch);
 router.patch("/:id/status", requireAuth, requireRole("admin"), updateApplicationStatus);
 
 export default router;

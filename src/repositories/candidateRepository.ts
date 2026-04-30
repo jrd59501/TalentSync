@@ -35,6 +35,15 @@ type StoredCandidateRow = {
     created_at: string;
 };
 
+type NormalizedCandidateInput = {
+    fullName: string;
+    email: string | null;
+    selectedSkills: string[];
+    experienceSummary: string;
+    resumeText: string | null;
+    strengthsText: string | null;
+};
+
 export class SQLiteCandidateRepository {
     private readonly db: DatabaseSync;
     private initialized = false;
@@ -118,12 +127,68 @@ export class SQLiteCandidateRepository {
 
     addCandidate(input: CreateCandidateInput): StoredCandidate {
         this.ensureInitialized();
+        const normalized = this.normalizeCandidateInput(input);
+
+        return this.insertCandidate(normalized);
+    }
+
+    upsertCandidateByEmail(input: CreateCandidateInput): StoredCandidate {
+        this.ensureInitialized();
+        const normalized = this.normalizeCandidateInput(input);
+
+        // Email is the link between an application and the saved candidate profile.
+        // If a profile for that email exists, update it instead of creating duplicates.
+        if (!normalized.email) {
+            return this.insertCandidate(normalized);
+        }
+
+        const existing = this.db.prepare(`
+            SELECT id
+            FROM candidates
+            WHERE LOWER(email) = LOWER(?)
+            ORDER BY id DESC
+            LIMIT 1
+        `).get(normalized.email) as { id: number } | undefined;
+
+        if (!existing) {
+            return this.insertCandidate(normalized);
+        }
+
+        const row = this.db.prepare(`
+            UPDATE candidates
+            SET full_name = ?,
+                email = ?,
+                selected_skills = ?,
+                experience_summary = ?,
+                resume_text = ?,
+                strengths_text = ?
+            WHERE id = ?
+            RETURNING id, full_name, email, selected_skills, experience_summary, resume_text, strengths_text, created_at
+        `).get(
+            normalized.fullName,
+            normalized.email,
+            JSON.stringify(normalized.selectedSkills),
+            normalized.experienceSummary,
+            normalized.resumeText,
+            normalized.strengthsText,
+            existing.id
+        ) as StoredCandidateRow | undefined;
+
+        if (!row) {
+            throw new Error("Failed to update candidate");
+        }
+
+        return this.mapStoredCandidateRow(row);
+    }
+
+    private normalizeCandidateInput(input: CreateCandidateInput): NormalizedCandidateInput {
+        // Normalize once so every save path stores candidates in the same format.
         const fullName = input.fullName.trim();
         const selectedSkills = [...new Set(input.selectedSkills.map(skill => skill.trim()).filter(Boolean))];
         const experienceSummary = (input.experienceSummary ?? "").trim();
         const resumeText = input.resumeText ? input.resumeText.trim().slice(0, 30000) : null;
         const strengthsText = input.strengthsText ? input.strengthsText.trim().slice(0, 10000) : null;
-        const email = input.email ? input.email.trim() : null;
+        const email = input.email ? input.email.trim().toLowerCase() : null;
         if (!fullName) {
             throw new Error("fullName is required");
         }
@@ -131,17 +196,28 @@ export class SQLiteCandidateRepository {
             throw new Error("selectedSkills must include at least one skill");
         }
 
+        return {
+            fullName,
+            email,
+            selectedSkills,
+            experienceSummary,
+            resumeText,
+            strengthsText
+        };
+    }
+
+    private insertCandidate(input: NormalizedCandidateInput): StoredCandidate {
         const row = this.db.prepare(`
             INSERT INTO candidates (full_name, email, selected_skills, experience_summary, resume_text, strengths_text)
             VALUES (?, ?, ?, ?, ?, ?)
             RETURNING id, full_name, email, selected_skills, experience_summary, resume_text, strengths_text, created_at
         `).get(
-            fullName,
-            email,
-            JSON.stringify(selectedSkills),
-            experienceSummary,
-            resumeText,
-            strengthsText
+            input.fullName,
+            input.email,
+            JSON.stringify(input.selectedSkills),
+            input.experienceSummary,
+            input.resumeText,
+            input.strengthsText
         ) as StoredCandidateRow | undefined;
 
         if (!row) {
@@ -175,6 +251,18 @@ export class SQLiteCandidateRepository {
         }
 
         return this.mapStoredCandidateRow(row);
+    }
+
+    getCandidateByEmail(email: string): StoredCandidate | null {
+        this.ensureInitialized();
+        const row = this.db.prepare(`
+            SELECT id, full_name, email, selected_skills, experience_summary, resume_text, strengths_text, created_at
+            FROM candidates
+            WHERE LOWER(email) = LOWER(?)
+            ORDER BY id DESC
+            LIMIT 1
+        `).get(email.trim()) as StoredCandidateRow | undefined;
+        return row ? this.mapStoredCandidateRow(row) : null;
     }
 
     deleteCandidateById(candidateId: number): boolean {

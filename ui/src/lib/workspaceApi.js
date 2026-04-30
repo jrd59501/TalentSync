@@ -170,6 +170,13 @@ export class WorkspaceApi {
     return body;
   }
 
+  static async getApplicationMatch(applicationId) {
+    const response = await WorkspaceApi.request(`/applications/${applicationId}/match`);
+    const body = await WorkspaceApi.readJson(response, {});
+    if (!response.ok) throw new Error(body?.error ?? `Failed: ${response.status}`);
+    return body;
+  }
+
   static async updateApplicationStatus(applicationId, status) {
     const response = await WorkspaceApi.request(`/applications/${applicationId}/status`, {
       method: "PATCH",

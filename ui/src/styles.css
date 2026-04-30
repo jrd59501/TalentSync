@@ -1,32 +1,35 @@
 :root {
-  --bg: #eef2f6;
-  --bg-accent: #dde7f2;
+  --bg: #f1f5f9;
+  --bg-accent: #dbeafe;
   --surface: #ffffff;
-  --surface-muted: #f7f9fc;
-  --border: #d2dbe6;
-  --border-strong: #b7c4d4;
-  --text: #0f1d2e;
-  --text-muted: #53657a;
-  --brand: #1f5a96;
-  --brand-strong: #154677;
-  --danger: #aa2f3f;
-  --danger-strong: #8d2533;
-  --shadow: 0 16px 40px rgba(16, 33, 52, 0.08);
-  --radius-sm: 10px;
-  --radius-md: 14px;
+  --surface-muted: #f8fafc;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --brand: #2563eb;
+  --brand-strong: #1d4ed8;
+  --brand-light: #eff6ff;
+  --danger: #dc2626;
+  --danger-strong: #b91c1c;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.07), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.1), 0 6px 16px rgba(0, 0, 0, 0.06);
+  --radius-sm: 8px;
+  --radius-md: 12px;
   --radius-lg: 20px;
-  --success-bg: #ebf8ef;
-  --success-border: #b8ddc5;
-  --success-text: #1f6132;
-  --info-bg: #ebf3fe;
-  --info-border: #bdd2f5;
-  --info-text: #1f4f84;
-  --error-bg: #feeef1;
-  --error-border: #f2bcc6;
-  --error-text: #8b2935;
-  --neutral-bg: #f1f4f8;
-  --neutral-border: #d7dfe8;
-  --neutral-text: #506276;
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+  --success-text: #166534;
+  --info-bg: #eff6ff;
+  --info-border: #bfdbfe;
+  --info-text: #1e40af;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --error-text: #991b1b;
+  --neutral-bg: #f8fafc;
+  --neutral-border: #e2e8f0;
+  --neutral-text: #475569;
 }
 
 * {
@@ -35,16 +38,17 @@
 
 body {
   margin: 0;
-  font-family: "Manrope", "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   color: var(--text);
-  background:
-    radial-gradient(circle at 10% 0%, var(--bg-accent) 0%, rgba(221, 231, 242, 0) 35%),
-    linear-gradient(180deg, #f8fbff 0%, var(--bg) 62%, #ebf0f6 100%);
+  background: linear-gradient(135deg, #eef4ff 0%, #f8fafc 50%, #f0f7ff 100%);
+  min-height: 100vh;
 }
 
 #root {
   min-height: 100vh;
 }
+
+/* ===== LOGIN ===== */
 
 .loginShell {
   min-height: 100vh;
@@ -54,19 +58,145 @@ body {
 }
 
 .loginCard {
-  width: min(920px, 100%);
-  padding: 28px;
+  width: min(960px, 100%);
   border: 1px solid var(--border);
   border-radius: 28px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 250, 255, 0.94) 100%);
-  box-shadow: var(--shadow);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.loginHero {
+  background: linear-gradient(150deg, #1e3a5f 0%, #0f2044 60%, #0c1833 100%);
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.loginHero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 85%, rgba(37, 99, 235, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 85% 15%, rgba(96, 165, 250, 0.15) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.loginHeroInner {
+  position: relative;
+  z-index: 1;
+}
+
+.loginBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.loginBrandMark {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.05em;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+}
+
+.loginBrandName {
+  color: white;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.loginHeroHeadline {
+  margin: 0 0 28px;
+  color: white;
+  font-size: clamp(1.75rem, 2.8vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.loginHeroFeatures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.loginHeroFeatures li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.loginHeroFeatures li::before {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(147, 197, 253, 0.5);
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.loginFormPane {
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+.loginFormTitle {
+  margin: 4px 0 10px;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.loginDivider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 14px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.loginDivider::before,
+.loginDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
 }
 
 .loginGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 .loginForm {
@@ -78,17 +208,43 @@ body {
 .loginOption {
   text-align: left;
   display: grid;
-  gap: 8px;
-  padding: 18px;
-  border-radius: 18px;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  font: inherit;
+}
+
+.loginOption:hover {
+  border-color: var(--brand);
+  background: var(--brand-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.loginOption strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.loginOption span:not(.loginRole) {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .loginRole {
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.88;
+  letter-spacing: 0.1em;
+  color: var(--brand);
+  font-weight: 800;
 }
+
+/* ===== APP SHELL ===== */
 
 .appShell {
   max-width: 1320px;
@@ -96,12 +252,14 @@ body {
   padding: 28px 20px 48px;
 }
 
+/* ===== HEADER ===== */
+
 .topHeader {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
   gap: 16px;
   align-items: end;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .headerActions {
@@ -112,9 +270,10 @@ body {
 
 .titleBlock h1 {
   margin: 0;
-  font-size: clamp(1.7rem, 2.6vw, 2.5rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.6rem, 2.4vw, 2.3rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
 }
 
 .kicker {
@@ -122,16 +281,19 @@ body {
   color: var(--brand);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
 }
 
 .subtitle {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   color: var(--text-muted);
-  max-width: 72ch;
-  line-height: 1.45;
+  max-width: 68ch;
+  line-height: 1.5;
+  font-size: 0.92rem;
 }
+
+/* ===== STAT CARDS ===== */
 
 .statsRow {
   display: grid;
@@ -140,49 +302,58 @@ body {
 }
 
 .statCard {
-  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
+  border-top: 3px solid var(--brand);
   border-radius: var(--radius-md);
-  padding: 12px;
-  box-shadow: 0 4px 12px rgba(16, 33, 52, 0.05);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
 }
 
 .statLabel {
   display: block;
   color: var(--text-muted);
-  font-size: 0.8rem;
-  margin-bottom: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 5px;
 }
 
 .statCard strong {
-  font-size: 1.3rem;
-  letter-spacing: -0.02em;
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  line-height: 1;
 }
+
+/* ===== WORKFLOW STRIP ===== */
 
 .workflowStrip {
   display: grid;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(234, 243, 253, 0.92) 100%);
-  box-shadow: 0 10px 24px rgba(16, 33, 52, 0.06);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .workflowTitle {
   margin: 0;
-  color: var(--brand);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .workflowSteps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .workflowStep {
@@ -190,41 +361,42 @@ body {
   align-items: center;
   gap: 10px;
   min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid #cbd8e7;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.76);
-  color: #27425d;
-  font-size: 0.92rem;
-  font-weight: 700;
+  background: var(--surface-muted);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 600;
 }
 
 .workflowNumber {
   display: inline-grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  flex: 0 0 28px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #2d6aab 0%, #1f5a96 100%);
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border-radius: 50%;
+  background: var(--brand);
   color: #fff;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 800;
 }
+
+/* ===== TABS ===== */
 
 .viewTabs {
   position: sticky;
   top: 12px;
   z-index: 20;
   display: inline-flex;
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(8px);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 4px;
-  gap: 4px;
-  margin-bottom: 16px;
-  box-shadow: 0 8px 20px rgba(16, 33, 52, 0.06);
+  gap: 3px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
 }
 
 .tabButton {
@@ -232,21 +404,27 @@ body {
   background: transparent;
   color: var(--text-muted);
   border-radius: 999px;
-  font-weight: 700;
-  padding: 8px 14px;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 7px 16px;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
 }
 
 .tabButton:hover {
-  background: #eef4fb;
-  color: #305377;
+  background: var(--surface-muted);
+  color: var(--text);
 }
 
 .tabButton.active {
   color: #fff;
-  background: linear-gradient(180deg, #2d6aab 0%, #1f5a96 100%);
+  background: var(--brand);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
+
+/* ===== CONTENT GRID ===== */
 
 .contentGrid {
   display: grid;
@@ -254,32 +432,40 @@ body {
   gap: 16px;
 }
 
+/* ===== PANELS ===== */
+
 .panel {
-  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 20px;
   box-shadow: var(--shadow);
 }
 
 .panel h2 {
   margin: 0;
-  font-size: 1.15rem;
-  letter-spacing: -0.01em;
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .panelText {
-  margin: 7px 0 12px;
+  margin: 6px 0 14px;
   color: var(--text-muted);
-  font-size: 0.93rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
+/* ===== STATUS MESSAGES ===== */
+
 .status {
-  margin: 0 0 12px;
-  padding: 8px 10px;
+  margin: 0 0 14px;
+  padding: 9px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.45;
 }
 
 .status.success {
@@ -306,13 +492,15 @@ body {
   color: var(--neutral-text);
 }
 
+/* ===== FORM ELEMENTS ===== */
+
 label {
   display: grid;
-  gap: 6px;
-  margin-bottom: 10px;
-  font-size: 0.92rem;
-  color: #21374f;
-  font-weight: 700;
+  gap: 5px;
+  margin-bottom: 12px;
+  font-size: 0.86rem;
+  color: var(--text);
+  font-weight: 600;
 }
 
 input,
@@ -320,11 +508,13 @@ select,
 textarea {
   width: 100%;
   font: inherit;
+  font-size: 0.9rem;
   color: var(--text);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  padding: 10px 11px;
+  padding: 9px 12px;
   background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 textarea {
@@ -335,85 +525,93 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #5a88b7;
-  box-shadow: 0 0 0 4px rgba(90, 136, 183, 0.18);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .fieldHint {
   color: var(--text-muted);
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .optionalBlock {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 10px;
+  padding: 10px 12px;
   background: var(--surface-muted);
   margin-bottom: 12px;
 }
 
 .optionalBlock summary {
   cursor: pointer;
-  color: #325579;
-  font-weight: 700;
+  color: var(--brand);
+  font-weight: 600;
+  font-size: 0.86rem;
   margin-bottom: 8px;
+  user-select: none;
 }
 
 .draftBlock {
   margin-bottom: 12px;
-  border: 1px solid #c4d7eb;
+  border: 1px solid var(--info-border);
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, #f3f8fe 0%, #eef5fd 100%);
-  padding: 10px;
+  background: var(--info-bg);
+  padding: 12px;
 }
 
 .draftHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .draftHeader h3 {
   margin: 0;
-  font-size: 0.93rem;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .draftMode {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border-radius: 999px;
-  border: 1px solid #9fbcda;
-  background: #dfeffd;
-  color: #1b4d7a;
-  font-size: 0.74rem;
-  font-weight: 800;
+  border: 1px solid var(--info-border);
+  background: #fff;
+  color: var(--info-text);
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.07em;
 }
+
+/* ===== BUTTONS ===== */
 
 .buttonRow {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 4px;
 }
 
 button {
-  border: 1px solid var(--brand);
-  background: linear-gradient(180deg, #2e69a8 0%, var(--brand) 100%);
+  border: none;
+  background: var(--brand);
   color: #fff;
-  border-radius: 9px;
-  padding: 8px 12px;
-  font-weight: 800;
+  border-radius: var(--radius-sm);
+  padding: 8px 15px;
+  font: inherit;
+  font-size: 0.87rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+  letter-spacing: -0.01em;
 }
 
 button:hover {
-  background: linear-gradient(180deg, #255a91 0%, var(--brand-strong) 100%);
-  border-color: var(--brand-strong);
-  box-shadow: 0 6px 14px rgba(20, 64, 105, 0.18);
+  background: var(--brand-strong);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
 }
 
 button:active {
@@ -421,30 +619,33 @@ button:active {
 }
 
 button.ghost {
-  background: #fff;
-  border-color: #a5b7ca;
-  color: #25496d;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
 }
 
 button.ghost:hover {
-  background: #eff5fc;
+  background: var(--surface-muted);
+  box-shadow: var(--shadow-sm);
 }
 
 button.danger {
-  background: linear-gradient(180deg, #b63a4b 0%, var(--danger) 100%);
-  border-color: var(--danger);
+  background: var(--danger);
 }
 
 button.danger:hover {
-  background: linear-gradient(180deg, #9f2f3f 0%, var(--danger-strong) 100%);
-  border-color: var(--danger-strong);
+  background: var(--danger-strong);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.28);
 }
 
 button:disabled {
-  opacity: 0.55;
+  opacity: 0.42;
   cursor: not-allowed;
   box-shadow: none;
+  transform: none;
 }
+
+/* ===== FILTER ROW ===== */
 
 .filterRow {
   display: grid;
@@ -453,45 +654,75 @@ button:disabled {
   margin-bottom: 8px;
 }
 
+/* ===== LIST CARDS ===== */
+
 .listStack {
   display: grid;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 12px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.listStack::-webkit-scrollbar {
+  width: 6px;
+}
+
+.listStack::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.listStack::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
 }
 
 .listCard {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
-  padding: 11px;
-  box-shadow: 0 6px 16px rgba(16, 33, 52, 0.05);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.15s, border-color 0.15s;
+}
+
+.listCard:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
 }
 
 .listCardHead {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   align-items: start;
 }
 
 .listCardHead h3 {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.25;
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .listCardHead p {
-  margin: 4px 0 0;
+  margin: 3px 0 0;
   color: var(--text-muted);
-  font-size: 0.86rem;
+  font-size: 0.82rem;
 }
 
 .metaRow {
   margin: 8px 0 0;
-  color: #5a6f86;
+  color: var(--text-muted);
   font-size: 0.8rem;
-  line-height: 1.35;
+  line-height: 1.45;
 }
+
+/* ===== CHIPS ===== */
 
 .chips {
   display: flex;
@@ -502,47 +733,139 @@ button:disabled {
 
 .chip {
   display: inline-block;
-  background: #ecf3fb;
-  border: 1px solid #d0deee;
+  background: var(--brand-light);
+  border: 1px solid #bfdbfe;
   border-radius: 999px;
-  font-size: 0.78rem;
-  color: #294d73;
-  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: var(--info-text);
+  font-weight: 600;
+  padding: 3px 10px;
 }
 
+/* ===== SCORE / STATUS PILLS ===== */
+
 .scorePill {
-  min-width: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
   text-align: center;
-  font-weight: 800;
-  border: 1px solid #aac1db;
+  font-weight: 700;
+  font-size: 0.8rem;
   border-radius: 999px;
-  padding: 5px 9px;
-  color: #194a74;
-  background: #eaf2fc;
+  padding: 5px 11px;
+  border: 1px solid var(--neutral-border);
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--neutral-text);
+  background: var(--neutral-bg);
 }
+
+.scorePill.high {
+  color: var(--success-text);
+  background: var(--success-bg);
+  border-color: var(--success-border);
+}
+
+.scorePill.mid {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.scorePill.low {
+  color: var(--error-text);
+  background: var(--error-bg);
+  border-color: var(--error-border);
+}
+
+.scorePill.accepted {
+  color: var(--success-text);
+  background: var(--success-bg);
+  border-color: var(--success-border);
+}
+
+.scorePill.rejected {
+  color: var(--error-text);
+  background: var(--error-bg);
+  border-color: var(--error-border);
+}
+
+.scorePill.reviewing {
+  color: var(--info-text);
+  background: var(--info-bg);
+  border-color: var(--info-border);
+}
+
+/* ===== METRIC ROW ===== */
 
 .metricRow {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 10px 0 0;
-  color: #2f4d68;
-  font-size: 0.88rem;
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
 .reasonText {
   margin: 8px 0 0;
-  color: #425c77;
-  font-size: 0.9rem;
-  line-height: 1.35;
+  color: var(--text-muted);
+  font-size: 0.87rem;
+  line-height: 1.5;
 }
 
+/* ===== EMPTY STATES ===== */
+
 .emptyText {
-  margin: 8px 0;
+  margin: 16px 0;
   text-align: center;
   color: var(--text-muted);
+  font-size: 0.88rem;
+  padding: 24px 20px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  line-height: 1.5;
 }
+
+/* ===== MATCH BREAKDOWN (application card expansion) ===== */
+
+.matchBreakdown {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-md);
+  background: var(--info-bg);
+}
+
+.matchBreakdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.matchBreakdownMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.matchBreakdownMeta strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.matchBreakdownEmpty {
+  margin: 0;
+  font-size: 0.87rem;
+  color: var(--text-muted);
+}
+
+/* ===== APPLY PANEL ===== */
 
 .applyPanel {
   margin-top: 12px;
@@ -552,23 +875,35 @@ button:disabled {
 
 .applyPanel h3 {
   margin: 0;
-  font-size: 0.98rem;
+  font-size: 0.94rem;
+  font-weight: 700;
 }
 
 .applyMeta {
   margin: 0 0 10px;
   color: var(--text-muted);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
+  line-height: 1.45;
 }
 
 .applyMeta a {
-  color: #225b93;
+  color: var(--brand);
   word-break: break-all;
 }
 
+/* ===== RESPONSIVE ===== */
+
 @media (max-width: 1000px) {
-  .loginGrid {
+  .loginCard {
     grid-template-columns: 1fr;
+  }
+
+  .loginHero {
+    padding: 32px 36px;
+  }
+
+  .loginFormPane {
+    padding: 32px 36px;
   }
 
   .topHeader {
@@ -594,24 +929,35 @@ button:disabled {
 }
 
 @media (max-width: 700px) {
-  .appShell {
-    padding: 14px;
+  .loginCard {
+    border-radius: 20px;
   }
 
-  .loginCard {
-    padding: 18px;
-    border-radius: 20px;
+  .loginHero {
+    padding: 28px 24px;
+  }
+
+  .loginFormPane {
+    padding: 28px 24px;
+  }
+
+  .loginHeroHeadline {
+    font-size: 1.5rem;
+  }
+
+  .appShell {
+    padding: 14px;
   }
 
   .viewTabs {
     position: static;
     width: 100%;
-    justify-content: space-between;
+    overflow-x: auto;
     border-radius: var(--radius-md);
   }
 
   .statsRow {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .filterRow {
@@ -619,7 +965,7 @@ button:disabled {
   }
 
   .panel {
-    padding: 13px;
+    padding: 14px;
     border-radius: var(--radius-md);
   }
 }
